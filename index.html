@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flam · Experience Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#18120e;--ink2:#5c4f47;--ink3:#a8998f;
+  --paper:#faf8f5;--surface:#fff;--wash:#f2ede7;--rule:#e8e2da;--rule2:#d6cec4;
+  --flame:#e84b1a;--flame-bg:#fef3ee;
+  --green:#1a7a4a;--green-bg:#eaf5ef;
+  --font-d:'DM Serif Display',Georgia,serif;
+  --font-b:'DM Sans',sans-serif;
+  --r:12px;
+  --sh-s:0 1px 2px rgba(24,18,14,.04),0 2px 8px rgba(24,18,14,.06);
+  --sh-m:0 4px 20px rgba(24,18,14,.1);
+  --sh-l:0 16px 56px rgba(24,18,14,.15);
+}
+html{font-size:15px}
+body{font-family:var(--font-b);background:var(--paper);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
+button,select{font-family:var(--font-b)}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--rule2);border-radius:10px}
+
+/* ── TOPBAR ── */
+.topbar{
+  position:sticky;top:0;z-index:200;height:56px;padding:0 28px;
+  display:flex;align-items:center;gap:18px;
+  background:rgba(250,248,245,.92);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--rule);
+}
+.brand{display:flex;align-items:center;gap:9px;text-decoration:none;flex-shrink:0}
+.brand-mark{width:28px;height:28px;border-radius:8px;background:var(--ink);display:grid;place-items:center;transition:background .2s}
+.brand:hover .brand-mark{background:var(--flame)}
+.brand-mark svg{width:10px;fill:#fff}
+.brand-name{font-family:var(--font-d);font-size:18px;color:var(--ink);letter-spacing:-.3px}
+
+.search-wrap{flex:1;max-width:400px;position:relative}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--ink3);pointer-events:none}
+.search-wrap input{
+  width:100%;height:34px;padding:0 12px 0 34px;
+  background:var(--surface);border:1px solid var(--rule2);border-radius:9px;
+  font-family:var(--font-b);font-size:13.5px;color:var(--ink);outline:none;
+  transition:border-color .15s,box-shadow .15s;
+}
+.search-wrap input::placeholder{color:var(--ink3)}
+.search-wrap input:focus{border-color:var(--flame);box-shadow:0 0 0 3px rgba(232,75,26,.1)}
+
+.t-right{margin-left:auto;display:flex;align-items:center;gap:7px}
+.count-tag{font-size:12px;padding:3px 10px;border-radius:20px;background:var(--wash);border:1px solid var(--rule);color:var(--ink3);white-space:nowrap}
+.count-tag b{color:var(--ink);font-weight:500}
+.src-badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:500;padding:4px 10px;border-radius:20px;white-space:nowrap}
+.src-badge.live{background:var(--green-bg);color:var(--green)}
+.src-badge.manual{background:var(--flame-bg);color:var(--flame)}
+.src-badge .dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+.icon-btn{width:34px;height:34px;border-radius:9px;border:1px solid var(--rule2);background:var(--surface);display:grid;place-items:center;cursor:pointer;color:var(--ink2);transition:all .15s}
+.icon-btn:hover{border-color:var(--ink);color:var(--ink)}
+
+/* ── LAYOUT ── */
+.layout{display:flex;min-height:calc(100vh - 56px)}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:214px;flex-shrink:0;padding:22px 14px 32px;
+  background:var(--surface);border-right:1px solid var(--rule);
+  position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto;
+}
+.sidebar::-webkit-scrollbar{width:0}
+.sb-section{margin-bottom:24px}
+.sb-label{font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);padding:0 8px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.sb-label::after{content:'';flex:1;height:1px;background:var(--rule)}
+.f-row{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:7px;cursor:pointer;transition:background .12s;user-select:none}
+.f-row:hover{background:var(--wash)}
+.f-row.on{background:var(--flame-bg)}
+.f-row.on .f-label{color:var(--flame);font-weight:500}
+.f-row.on .f-n{background:rgba(232,75,26,.12);color:var(--flame)}
+.f-label{flex:1;font-size:12.5px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.f-n{font-size:10.5px;padding:1px 6px;border-radius:8px;background:var(--wash);color:var(--ink3);flex-shrink:0}
+.sb-div{height:1px;background:var(--rule);margin:4px 0 18px}
+.clear-btn{width:100%;padding:7px;border-radius:7px;border:1px dashed var(--rule2);background:transparent;font-size:12px;color:var(--ink3);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px}
+.clear-btn:hover{border-color:var(--flame);color:var(--flame);background:var(--flame-bg)}
+
+/* ── MAIN ── */
+.main{flex:1;padding:26px 30px;min-width:0}
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px}
+.sort-sel{height:32px;padding:0 10px;border:1px solid var(--rule2);border-radius:8px;background:var(--surface);font-family:var(--font-b);font-size:12.5px;color:var(--ink2);cursor:pointer;outline:none}
+.sort-sel:focus{border-color:var(--flame)}
+.view-sw{display:flex;gap:3px;margin-left:auto}
+.vbtn{width:30px;height:30px;border-radius:7px;border:1px solid var(--rule2);background:var(--surface);display:grid;place-items:center;cursor:pointer;color:var(--ink3);transition:all .12s}
+.vbtn:hover{color:var(--ink)}
+.vbtn.on{background:var(--ink);border-color:var(--ink);color:#fff}
+
+/* ── GRID ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(256px,1fr));gap:15px}
+.grid.list{grid-template-columns:1fr;gap:8px}
+
+/* ── CARD ── */
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:transform .22s cubic-bezier(.22,.68,0,1.2),box-shadow .22s,border-color .2s;animation:rise .28s ease both}
+.card:hover{transform:translateY(-2px);box-shadow:var(--sh-m);border-color:var(--rule2)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.c-thumb{position:relative;aspect-ratio:16/9;background:var(--wash);overflow:hidden}
+.c-thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s cubic-bezier(.22,.68,0,1.2)}
+.card:hover .c-thumb img{transform:scale(1.04)}
+.thumb-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(140deg,var(--wash) 0%,var(--rule) 100%)}
+
+.play-veil{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(24,18,14,.22);opacity:0;transition:opacity .18s}
+.card:hover .play-veil{opacity:1}
+.play-disc{width:42px;height:42px;border-radius:50%;background:#fff;box-shadow:0 2px 14px rgba(0,0,0,.22);display:grid;place-items:center;transform:scale(.88);transition:transform .22s cubic-bezier(.22,.68,0,1.2)}
+.card:hover .play-disc{transform:scale(1)}
+.play-disc svg{width:13px;fill:var(--ink);margin-left:2px}
+
+.type-badge{position:absolute;top:8px;left:8px;font-size:9.5px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,.88);color:var(--ink2);border:1px solid rgba(255,255,255,.4);backdrop-filter:blur(4px)}
+
+.c-body{padding:13px 14px 14px}
+.c-title{font-size:13.5px;font-weight:400;color:var(--ink);line-height:1.45;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.c-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.c-tag{font-size:11px;padding:2px 7px;border-radius:4px;background:var(--wash);color:var(--ink2);border:1px solid var(--rule)}
+.c-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:10px;border-top:1px solid var(--rule)}
+.c-src{font-size:11.5px;color:var(--ink3);font-weight:300}
+.c-btns{display:flex;gap:5px}
+.btn-dark{height:26px;padding:0 11px;border-radius:6px;border:none;background:var(--ink);color:#fff;font-family:var(--font-b);font-size:11.5px;font-weight:500;cursor:pointer;transition:background .15s}
+.btn-dark:hover{background:var(--flame)}
+.btn-ghost{width:26px;height:26px;border-radius:6px;border:1px solid var(--rule2);background:transparent;display:grid;place-items:center;cursor:pointer;color:var(--ink3);transition:all .15s}
+.btn-ghost:hover{border-color:var(--ink);color:var(--ink)}
+
+/* list mode */
+.grid.list .card{display:flex;height:70px}
+.grid.list .c-thumb{width:110px;flex-shrink:0;aspect-ratio:unset;height:70px}
+.grid.list .c-body{flex:1;display:flex;align-items:center;gap:12px;padding:0 14px}
+.grid.list .c-title{flex:1;-webkit-line-clamp:1;margin-bottom:0;font-size:13px}
+.grid.list .c-tags,.grid.list .type-badge{display:none}
+.grid.list .c-foot{border:none;padding:0;flex-shrink:0}
+.grid.list .c-src{display:none}
+
+/* ── STATE WRAPPERS ── */
+.state-box{grid-column:1/-1;min-height:300px;display:flex;align-items:center;justify-content:center;padding:48px}
+.spinner{width:30px;height:30px;border:2px solid var(--rule);border-top-color:var(--ink2);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-state{text-align:center}
+.empty-icon{font-size:32px;opacity:.3;margin-bottom:12px}
+.empty-title{font-size:15px;font-weight:500;margin-bottom:5px}
+.empty-sub{font-size:13px;color:var(--ink3)}
+
+/* ── MODAL ── */
+.modal-bg{display:none;position:fixed;inset:0;z-index:300;background:rgba(24,18,14,.6);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex;animation:fadein .15s ease}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+
+.modal{background:var(--surface);border-radius:16px;width:100%;max-width:820px;max-height:92vh;overflow-y:auto;box-shadow:var(--sh-l);animation:popup .2s cubic-bezier(.22,.68,0,1.2)}
+@keyframes popup{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* modal player area */
+.modal-player{width:100%;aspect-ratio:16/9;background:#0e0e0e;border-radius:16px 16px 0 0;overflow:hidden;position:relative}
+.modal-player iframe{width:100%;height:100%;border:none;display:block}
+.modal-player img{width:100%;height:100%;object-fit:contain;display:block;background:#111}
+
+/* no-embed fallback */
+.no-embed{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:var(--wash);color:var(--ink3);font-size:13px}
+.no-embed-icon{font-size:38px;opacity:.35}
+
+/* multiple assets tabs */
+.asset-tabs{display:flex;gap:0;border-bottom:1px solid var(--rule);background:var(--wash);padding:0 20px}
+.asset-tab{padding:10px 14px;font-size:12.5px;color:var(--ink3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;user-select:none}
+.asset-tab:hover{color:var(--ink2)}
+.asset-tab.on{color:var(--flame);border-bottom-color:var(--flame);font-weight:500}
+
+/* modal body */
+.modal-body{padding:20px 24px 28px}
+.modal-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+.modal-title{font-family:var(--font-d);font-size:22px;line-height:1.3;color:var(--ink)}
+.close-btn{width:30px;height:30px;border-radius:7px;flex-shrink:0;border:1px solid var(--rule2);background:transparent;cursor:pointer;display:grid;place-items:center;color:var(--ink3);transition:all .15s}
+.close-btn:hover{border-color:var(--ink);color:var(--ink)}
+.close-btn svg{stroke:currentColor;stroke-width:2;fill:none}
+
+.modal-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
+.modal-chip{font-size:11.5px;padding:3px 9px;border-radius:5px;background:var(--wash);border:1px solid var(--rule);color:var(--ink2)}
+.modal-chip.type{background:var(--flame-bg);border-color:rgba(232,75,26,.2);color:var(--flame)}
+
+.modal-links{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.link-btn{height:32px;padding:0 14px;border-radius:7px;border:none;text-decoration:none;display:inline-flex;align-items:center;gap:7px;font-family:var(--font-b);font-size:12.5px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap}
+.link-btn.primary{background:var(--ink);color:#fff}
+.link-btn.primary:hover{background:var(--flame)}
+.link-btn.secondary{background:var(--wash);color:var(--ink2);border:1px solid var(--rule2)}
+.link-btn.secondary:hover{border-color:var(--ink);color:var(--ink)}
+.link-btn svg{stroke:currentColor;fill:none;stroke-width:1.8;flex-shrink:0}
+
+.modal-meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;padding-top:16px;border-top:1px solid var(--rule)}
+.meta-item .mk{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink3);font-weight:500;margin-bottom:3px}
+.meta-item .mv{font-size:13px;color:var(--ink)}
+
+/* ── SETTINGS PANEL ── */
+.panel-overlay{display:none;position:fixed;inset:0;z-index:250;background:rgba(24,18,14,.35)}
+.panel-overlay.open{display:block;animation:fadein .15s ease}
+.panel{position:fixed;right:0;top:0;bottom:0;width:340px;z-index:251;background:var(--surface);border-left:1px solid var(--rule);overflow-y:auto;box-shadow:var(--sh-l);transform:translateX(100%);transition:transform .22s ease}
+.panel.open{transform:none}
+.panel-inner{padding:24px 22px}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.panel-title{font-size:15px;font-weight:500}
+.sec-lbl{font-size:10px;font-weight:500;letter-spacing:.9px;text-transform:uppercase;color:var(--ink3);display:block;margin:20px 0 10px}
+.field{margin-bottom:10px}
+.field label{font-size:12px;color:var(--ink2);display:block;margin-bottom:4px}
+.field input,.field select,.field textarea{width:100%;padding:0 10px;height:36px;background:var(--wash);border:1px solid var(--rule2);border-radius:7px;font-size:12.5px;color:var(--ink);font-family:var(--font-b);outline:none;transition:border-color .15s}
+.field textarea{height:90px;padding:9px 10px;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{background:var(--surface);border-color:var(--flame)}
+.field textarea::placeholder{color:var(--ink3)}
+.p-btn{width:100%;height:38px;border-radius:8px;border:none;background:var(--ink);color:#fff;font-size:13px;font-family:var(--font-b);font-weight:500;cursor:pointer;transition:background .15s}
+.p-btn:hover{background:var(--flame)}
+.p-hint{font-size:11.5px;color:var(--ink3);margin-top:7px;line-height:1.6}
+
+/* tabs (shared) */
+.tabs{display:flex;background:var(--wash);border-radius:8px;padding:3px;margin-bottom:14px}
+.tab{flex:1;height:30px;border-radius:6px;border:none;background:transparent;font-size:12.5px;font-family:var(--font-b);color:var(--ink2);cursor:pointer;transition:all .15s}
+.tab.on{background:var(--surface);color:var(--ink);font-weight:500;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.tpanel{display:none}
+.tpanel.on{display:block}
+
+/* ── SETUP SCREEN ── */
+.setup{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px}
+.setup-card{background:var(--surface);border:1px solid var(--rule);border-radius:16px;padding:40px;width:100%;max-width:480px;box-shadow:var(--sh-s)}
+.setup-h{font-family:var(--font-d);font-size:26px;margin-bottom:6px}
+.setup-sub{font-size:13.5px;color:var(--ink2);margin-bottom:28px;line-height:1.65}
+.s-field{margin-bottom:12px}
+.s-field label{font-size:12px;color:var(--ink2);display:block;margin-bottom:5px}
+.s-field input{width:100%;height:40px;padding:0 12px;background:var(--wash);border:1px solid var(--rule2);border-radius:8px;font-size:13.5px;color:var(--ink);font-family:var(--font-b);outline:none;transition:border-color .15s,box-shadow .15s}
+.s-field input:focus{background:var(--surface);border-color:var(--flame);box-shadow:0 0 0 3px rgba(232,75,26,.1)}
+.s-field input::placeholder{color:var(--ink3)}
+.s-btn{width:100%;height:42px;border-radius:8px;border:none;background:var(--ink);color:#fff;font-size:14px;font-family:var(--font-b);font-weight:500;cursor:pointer;transition:background .15s;margin-top:6px}
+.s-btn:hover{background:var(--flame)}
+.err{font-size:12px;color:#c0392b;margin-top:7px;display:none}
+.step-block{background:var(--wash);border:1px solid var(--rule);border-radius:var(--r);padding:13px;margin-bottom:9px}
+.step-title{font-size:13px;font-weight:500;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.step-num{width:20px;height:20px;border-radius:50%;background:var(--ink);color:#fff;font-size:11px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-body{font-size:12px;color:var(--ink2);line-height:1.65}
+.step-body code{background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:1px 5px;font-size:11px;font-family:monospace}
+.divider{display:flex;align-items:center;gap:10px;margin:18px 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--rule)}
+.divider span{font-size:11px;color:var(--ink3)}
+
+@media(max-width:768px){
+  .topbar{padding:0 16px}
+  .sidebar{display:none}
+  .main{padding:18px 16px}
+  .panel{width:100%}
+  .modal{border-radius:14px}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ SETUP ══════════════════════════════════════════ -->
+<div class="setup" id="setup">
+  <div class="setup-card">
+    <div style="display:flex;align-items:center;gap:9px;margin-bottom:26px">
+      <div class="brand-mark"><svg viewBox="0 0 9 10"><polygon points="1,1 8,5 1,9"/></svg></div>
+      <span style="font-family:var(--font-d);font-size:18px">Flam Library</span>
+    </div>
+    <div class="setup-h">Connect your sheet</div>
+    <div class="setup-sub">Choose how to load your experience data.</div>
+
+    <div class="tabs">
+      <button class="tab on" data-tab="s-paste">Paste CSV</button>
+      <button class="tab" data-tab="s-api">Live · Apps Script</button>
+    </div>
+
+    <div class="tpanel on" id="s-paste">
+      <div style="font-size:12.5px;color:var(--ink2);margin-bottom:10px;line-height:1.65">
+        In Google Sheets → <strong>File → Download → CSV</strong>. Open it, select all, paste below.
+      </div>
+      <textarea id="paste-in" style="width:100%;min-height:100px;padding:10px;background:var(--wash);border:1px solid var(--rule2);border-radius:8px;font-size:12px;font-family:monospace;color:var(--ink);outline:none;resize:vertical;line-height:1.5;transition:border-color .15s" placeholder="Paste CSV here…"></textarea>
+      <div class="err" id="paste-err"></div>
+      <button class="s-btn" id="paste-btn">Load data →</button>
+    </div>
+
+    <div class="tpanel" id="s-api">
+      <div class="step-block"><div class="step-title"><span class="step-num">1</span>Open Apps Script</div><div class="step-body">In Google Sheets → <code>Extensions</code> → <code>Apps Script</code></div></div>
+      <div class="step-block"><div class="step-title"><span class="step-num">2</span>Paste the script</div><div class="step-body">Delete existing code. Paste everything from <strong>apps-script.js</strong>. Save.</div></div>
+      <div class="step-block"><div class="step-title"><span class="step-num">3</span>Deploy as Web App</div><div class="step-body"><code>Deploy</code> → <code>New deployment</code> → Type: <code>Web app</code> → Execute as: <code>Me</code> → Access: <code>Anyone</code> → Deploy → copy URL</div></div>
+      <div class="s-field" style="margin-top:12px">
+        <label>Web App URL</label>
+        <input type="text" id="api-in" placeholder="https://script.google.com/macros/s/…/exec">
+      </div>
+      <div class="err" id="api-err"></div>
+      <button class="s-btn" id="api-btn">Connect →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APP ════════════════════════════════════════════ -->
+<div id="app" style="display:none">
+  <header class="topbar">
+    <a class="brand" href="#">
+      <div class="brand-mark"><svg viewBox="0 0 9 10"><polygon points="1,1 8,5 1,9"/></svg></div>
+      <span class="brand-name">Flam Library</span>
+    </a>
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6.5" cy="6.5" r="5"/><path d="M11 11l3.5 3.5"/></svg>
+      <input type="text" id="search" placeholder="Search experiences, categories…" autocomplete="off">
+    </div>
+    <div class="t-right">
+      <div class="count-tag"><b id="s-count">0</b> / <span id="t-count">0</span></div>
+      <div id="src-badge"></div>
+      <button class="icon-btn" id="settings-btn" title="Settings">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="2.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sb-section" id="sb-cat"><span class="sb-label">Category</span><div id="cat-list"></div></div>
+      <div class="sb-div"></div>
+      <div class="sb-section" id="sb-type"><span class="sb-label">Flam Type</span><div id="type-list"></div></div>
+      <div class="sb-div"></div>
+      <button class="clear-btn" id="clear-btn">
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="1" y1="1" x2="10" y2="10"/><line x1="10" y1="1" x2="1" y2="10"/></svg>
+        Clear filters
+      </button>
+    </aside>
+
+    <main class="main">
+      <div class="toolbar">
+        <select class="sort-sel" id="sort">
+          <option value="">Default order</option>
+          <option value="az">Name A → Z</option>
+          <option value="za">Name Z → A</option>
+        </select>
+        <div class="view-sw">
+          <button class="vbtn on" id="vg" title="Grid">
+            <svg width="12" height="12" fill="currentColor"><rect x="0" y="0" width="5" height="5" rx="1"/><rect x="7" y="0" width="5" height="5" rx="1"/><rect x="0" y="7" width="5" height="5" rx="1"/><rect x="7" y="7" width="5" height="5" rx="1"/></svg>
+          </button>
+          <button class="vbtn" id="vl" title="List">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="0" y1="2" x2="12" y2="2"/><line x1="0" y1="6" x2="12" y2="6"/><line x1="0" y1="10" x2="12" y2="10"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="grid" id="grid"></div>
+    </main>
+  </div>
+</div>
+
+<!-- ══ MODAL ══════════════════════════════════════════ -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal" id="modal">
+    <div id="modal-player-wrap">
+      <!-- tabs injected here when multiple assets -->
+    </div>
+    <div class="modal-body">
+      <div class="modal-top">
+        <div class="modal-title" id="modal-title"></div>
+        <button class="close-btn" id="modal-close"><svg width="10" height="10" viewBox="0 0 10 10"><line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/></svg></button>
+      </div>
+      <div class="modal-chips" id="modal-chips"></div>
+      <div class="modal-links" id="modal-links"></div>
+      <div class="modal-meta" id="modal-meta"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SETTINGS ═══════════════════════════════════════ -->
+<div class="panel-overlay" id="panel-overlay"></div>
+<div class="panel" id="panel">
+  <div class="panel-inner">
+    <div class="panel-head">
+      <div class="panel-title">Settings</div>
+      <button class="close-btn" id="panel-close"><svg width="10" height="10" viewBox="0 0 10 10"><line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/></svg></button>
+    </div>
+    <div id="panel-status" style="margin-bottom:16px"></div>
+
+    <span class="sec-lbl" style="margin-top:0">Data source</span>
+    <div class="tabs">
+      <button class="tab on" data-ptab="pp-paste">Paste CSV</button>
+      <button class="tab" data-ptab="pp-api">Apps Script</button>
+    </div>
+    <div class="tpanel on" id="pp-paste">
+      <div class="field"><label>Paste updated CSV</label><textarea id="repaste" placeholder="Paste new CSV to refresh data…"></textarea></div>
+      <button class="p-btn" id="repaste-btn">Update data</button>
+    </div>
+    <div class="tpanel" id="pp-api">
+      <div class="field"><label>Apps Script URL</label><input type="text" id="panel-api-url" placeholder="https://script.google.com/macros/s/…/exec"></div>
+      <button class="p-btn" id="panel-api-btn">Connect & reload</button>
+      <div class="p-hint">See <strong>apps-script.js</strong> for setup steps.</div>
+    </div>
+
+    <span class="sec-lbl">Column mapping</span>
+    <div class="field"><label>Title</label><select id="col-title"></select></div>
+    <div class="field"><label>Thumbnail (Meta Image)</label><select id="col-thumb"></select></div>
+    <div class="field"><label>Flam Link</label><select id="col-flam"></select></div>
+    <div class="field"><label>Flam Type</label><select id="col-flamtype"></select></div>
+    <div class="field"><label>Category</label><select id="col-cat"></select></div>
+    <div class="field"><label>Trigger Image Link</label><select id="col-trigger"></select></div>
+    <div class="field"><label>Mock Videos</label><select id="col-video"></select></div>
+    <button class="p-btn" id="apply-cols" style="margin-top:4px">Apply mapping</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════
+const STORAGE_KEY = 'flamLib4';
+let S = {
+  rows:[], headers:[],
+  cols:{ title:'Title', thumb:'Meta Image', flam:'Flam Link', flamtype:'Flam Type', cat:'Category', trigger:'Trigger Image Link', video:'Mock Videos' },
+  filters:{ cat:null, type:null },
+  search:'', sort:'', view:'grid',
+  source:null, apiUrl:'', csv:''
+};
+try {
+  const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+  if(saved.cols)    Object.assign(S.cols, saved.cols);
+  if(saved.source)  S.source  = saved.source;
+  if(saved.apiUrl)  S.apiUrl  = saved.apiUrl;
+  if(saved.csv)     S.csv     = saved.csv;
+} catch(e){}
+
+function persist(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    cols:S.cols, source:S.source, apiUrl:S.apiUrl,
+    csv: S.source==='paste' ? S.csv : ''
+  }));
+}
+
+// ══════════════════════════════════════════════════
+//  DRIVE HELPERS
+// ══════════════════════════════════════════════════
+
+// Extract Drive file ID from any Drive URL format
+function driveId(url){
+  if(!url) return null;
+  let m;
+  m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);     if(m) return m[1];
+  m = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);          if(m) return m[1];
+  m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);             if(m) return m[1];
+  return null;
+}
+
+// Drive thumbnail URL (works for images; videos show a frame)
+function driveThumbnail(url, size=400){
+  const id = driveId(url);
+  return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w${size}` : null;
+}
+
+// Drive embed/preview URL
+function drivePreview(url){
+  const id = driveId(url);
+  return id ? `https://drive.google.com/file/d/${id}/preview` : null;
+}
+
+// Parse a cell that may have multiple space/newline-separated Drive links
+function parseDriveLinks(cell){
+  if(!cell) return [];
+  // Split on whitespace between links
+  return cell.split(/[\s\n]+(?=https?:\/\/)/)
+    .map(s=>s.trim()).filter(s=>s.startsWith('http'));
+}
+
+// Is this URL a Drive link?
+function isDriveLink(url){
+  return /drive\.google\.com/i.test(url);
+}
+
+// Is this a Flam link?
+function isFlamLink(url){
+  return /flamapp\.com|c\.flamapp|g\.flamapp/i.test(url);
+}
+
+// ══════════════════════════════════════════════════
+//  CSV PARSER
+// ══════════════════════════════════════════════════
+function parseCSV(text){
+  const lines = text.trim().split(/\r?\n/).filter(l=>l.trim());
+  if(!lines.length) throw new Error('No data found');
+  const parseLine = line => {
+    const res=[]; let cur='', q=false;
+    for(let i=0;i<line.length;i++){
+      const c=line[i];
+      if(c==='"'){ q&&line[i+1]==='"'?(cur+='"',i++):(q=!q); }
+      else if(c===','&&!q){ res.push(cur.trim()); cur=''; }
+      else cur+=c;
+    }
+    res.push(cur.trim()); return res;
+  };
+  const headers = parseLine(lines[0]).map(h=>h.replace(/^"|"$/g,'').trim()).filter(Boolean);
+  if(!headers.length) throw new Error('No column headers found in row 1');
+  const rows = lines.slice(1).map(l=>{
+    const vals=parseLine(l), obj={};
+    headers.forEach((h,i)=>{ obj[h]=(vals[i]||'').replace(/^"|"$/g,'').trim(); });
+    return obj;
+  }).filter(r=>Object.values(r).some(v=>v));
+  return { headers, rows };
+}
+
+// ══════════════════════════════════════════════════
+//  AUTO-DETECT COLUMNS
+// ══════════════════════════════════════════════════
+function autoDetect(headers){
+  const find=(...pats)=>headers.find(h=>pats.some(p=>h.toLowerCase().includes(p)))||'';
+  return {
+    title:    find('title','name','experience','subject'),
+    thumb:    find('meta image','thumbnail','thumb','image'),
+    flam:     find('flam link','flamlink','flam url'),
+    flamtype: find('flam type','flamtype','type'),
+    cat:      find('category','cat','vertical','industry'),
+    trigger:  find('trigger','trigger image'),
+    video:    find('mock video','video','recording')
+  };
+}
+
+// ══════════════════════════════════════════════════
+//  INGEST
+// ══════════════════════════════════════════════════
+function ingest(headers, rows){
+  S.headers = headers;
+  S.rows    = rows;
+  const d = autoDetect(headers);
+  // Fill only unset cols
+  Object.keys(d).forEach(k=>{ if(!S.cols[k]) S.cols[k]=d[k]; });
+  persist();
+  document.getElementById('t-count').textContent = rows.length;
+  document.getElementById('s-count').textContent = rows.length;
+  buildFilters();
+  populateColSelects();
+  renderAll();
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('app').style.display   = '';
+  updateSourceBadge();
+}
+
+// ══════════════════════════════════════════════════
+//  LOAD FUNCTIONS
+// ══════════════════════════════════════════════════
+function loadFromPaste(text, onErr){
+  try {
+    const {headers,rows} = parseCSV(text);
+    S.source='paste'; S.csv=text;
+    ingest(headers,rows);
+  } catch(e){ if(onErr) onErr(e.message); }
+}
+
+async function loadFromAPI(url, onErr){
+  try {
+    const res = await fetch(url);
+    if(!res.ok) throw new Error('Server error '+res.status);
+    const data = await res.json();
+    if(data.error) throw new Error(data.error);
+    if(!data.headers||!data.rows) throw new Error('Unexpected response format');
+    S.source='api'; S.apiUrl=url;
+    ingest(data.headers, data.rows);
+  } catch(e){ if(onErr) onErr(e.message); }
+}
+
+function updateSourceBadge(){
+  const el = document.getElementById('src-badge');
+  el.innerHTML = S.source==='api'
+    ? `<span class="src-badge live"><span class="dot"></span>Live</span>`
+    : `<span class="src-badge manual"><span class="dot"></span>Manual</span>`;
+}
+
+// ══════════════════════════════════════════════════
+//  FILTERS
+// ══════════════════════════════════════════════════
+function cv(row,k){ return k?(row[k]||''):''; }
+
+function buildFilters(){
+  const cntCat={}, cntType={};
+  S.rows.forEach(row=>{
+    const cats = cv(row,S.cols.cat).split(',').map(s=>s.trim()).filter(Boolean);
+    const type = cv(row,S.cols.flamtype);
+    cats.forEach(c=>{ cntCat[c]=(cntCat[c]||0)+1; });
+    if(type) cntType[type]=(cntType[type]||0)+1;
+  });
+  fillFilter('cat-list','cat',cntCat);
+  fillFilter('type-list','type',cntType);
+  document.getElementById('sb-cat').style.display  = Object.keys(cntCat).length  ?'':'none';
+  document.getElementById('sb-type').style.display = Object.keys(cntType).length ?'':'none';
+}
+
+function fillFilter(elId, key, counts){
+  const el = document.getElementById(elId); el.innerHTML='';
+  Object.entries(counts).sort((a,b)=>b[1]-a[1]).forEach(([val,n])=>{
+    const d=document.createElement('div');
+    d.className='f-row'; d.dataset.key=key; d.dataset.val=val;
+    d.innerHTML=`<span class="f-label">${esc(val)}</span><span class="f-n">${n}</span>`;
+    d.addEventListener('click',()=>{
+      S.filters[key] = S.filters[key]===val ? null : val;
+      document.querySelectorAll('.f-row').forEach(f=>f.classList.toggle('on',f.dataset.key===key&&f.dataset.val===S.filters[key]));
+      renderAll();
+    });
+    el.appendChild(d);
+  });
+}
+
+// ══════════════════════════════════════════════════
+//  RENDER CARDS
+// ══════════════════════════════════════════════════
+function renderAll(){
+  const {rows,cols,filters,search,sort} = S;
+  let items = rows.filter(row=>{
+    const cats = cv(row,cols.cat).split(',').map(s=>s.trim());
+    const type = cv(row,cols.flamtype);
+    const text = Object.values(row).join(' ').toLowerCase();
+    if(filters.cat  && !cats.includes(filters.cat))    return false;
+    if(filters.type && type!==filters.type)             return false;
+    if(search       && !text.includes(search.toLowerCase())) return false;
+    return true;
+  });
+  if(sort==='az') items.sort((a,b)=>cv(a,cols.title).localeCompare(cv(b,cols.title)));
+  if(sort==='za') items.sort((a,b)=>cv(b,cols.title).localeCompare(cv(a,cols.title)));
+
+  document.getElementById('s-count').textContent = items.length;
+  const grid = document.getElementById('grid');
+  grid.className = 'grid'+(S.view==='list'?' list':'');
+
+  if(!items.length){
+    grid.innerHTML=`<div class="state-box"><div class="empty-state"><div class="empty-icon">◎</div><div class="empty-title">No results</div><div class="empty-sub">Try adjusting your filters or search</div></div></div>`;
+    return;
+  }
+
+  grid.innerHTML='';
+  items.forEach((row,i)=>{
+    const title     = cv(row,cols.title) || `Item ${i+1}`;
+    const thumbUrl  = cv(row,cols.thumb);
+    const flamLink  = cv(row,cols.flam);
+    const flamType  = cv(row,cols.flamtype);
+    const catRaw    = cv(row,cols.cat);
+    const trigLinks = parseDriveLinks(cv(row,cols.trigger));
+    const vidLinks  = parseDriveLinks(cv(row,cols.video));
+
+    // Build thumbnail: use Meta Image column (Drive) → first trigger image → placeholder
+    let thumbHTML = '';
+    if(thumbUrl && isDriveLink(thumbUrl)){
+      const tid = driveId(thumbUrl);
+      if(tid){
+        thumbHTML = `<img src="https://drive.google.com/thumbnail?id=${tid}&sz=w400" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="thumb-ph" style="display:none">${thumbPH()}</div>`;
+      }
+    } else if(trigLinks.length){
+      // Use first trigger image as fallback thumb
+      const fid = driveId(trigLinks[0]);
+      if(fid){
+        thumbHTML = `<img src="https://drive.google.com/thumbnail?id=${fid}&sz=w400" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="thumb-ph" style="display:none">${thumbPH()}</div>`;
+      }
+    }
+    if(!thumbHTML) thumbHTML = `<div class="thumb-ph">${thumbPH()}</div>`;
+
+    // Tags from category (may be comma-separated like "Fashion,Jewellery")
+    const tags = catRaw.split(',').map(s=>s.trim()).filter(Boolean);
+    const hasAssets = flamLink || trigLinks.length || vidLinks.length;
+
+    const card = document.createElement('div');
+    card.className='card';
+    card.style.animationDelay = Math.min(i*16,220)+'ms';
+    card.innerHTML=`
+      <div class="c-thumb">
+        ${thumbHTML}
+        <div class="play-veil"><div class="play-disc"><svg viewBox="0 0 14 14"><polygon points="2,1 13,7 2,13"/></svg></div></div>
+        ${flamType?`<div class="type-badge">${esc(flamType)}</div>`:''}
+      </div>
+      <div class="c-body">
+        <div class="c-title">${esc(title)}</div>
+        ${tags.length?`<div class="c-tags">${tags.slice(0,3).map(t=>`<span class="c-tag">${esc(t)}</span>`).join('')}</div>`:''}
+        <div class="c-foot">
+          <span class="c-src">${esc(catRaw)}</span>
+          <div class="c-btns">
+            ${hasAssets?`<button class="btn-dark" data-open>Preview</button>`:''}
+            ${flamLink?`<button class="btn-ghost" data-ext="${esc(flamLink)}" title="Open Flam experience"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M1 9L9 1M9 1H4M9 1v5"/></svg></button>`:''}
+          </div>
+        </div>
+      </div>`;
+
+    card._data = { row, title, flamLink, flamType, catRaw, tags, trigLinks, vidLinks };
+
+    card.addEventListener('click', e=>{
+      if(e.target.closest('[data-ext]')){ window.open(e.target.closest('[data-ext]').dataset.ext,'_blank'); return; }
+      openModal(card._data);
+    });
+    grid.appendChild(card);
+  });
+}
+
+function thumbPH(){
+  return `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="#ccc" stroke-width="1.4"><rect x="2" y="6" width="28" height="20" rx="3"/><polygon points="11,10 11,22 23,16" fill="#ccc" stroke="none"/></svg>`;
+}
+
+// ══════════════════════════════════════════════════
+//  MODAL
+// ══════════════════════════════════════════════════
+let _currentAssets = [];
+let _currentAssetIdx = 0;
+
+function openModal({ row, title, flamLink, flamType, catRaw, tags, trigLinks, vidLinks }){
+  // Build asset list: videos first, then trigger images
+  // Each asset: { label, url, kind: 'video'|'image'|'flam' }
+  const assets = [];
+
+  vidLinks.forEach((url,i)=>{
+    assets.push({ label: vidLinks.length>1?`Video ${i+1}`:'Mock Video', url, kind:'video' });
+  });
+  trigLinks.forEach((url,i)=>{
+    assets.push({ label: trigLinks.length>1?`Trigger ${i+1}`:'Trigger Image', url, kind:'image' });
+  });
+
+  _currentAssets    = assets;
+  _currentAssetIdx  = 0;
+
+  // Title & chips
+  document.getElementById('modal-title').textContent = title;
+  const chips = [
+    catRaw ? `<span class="modal-chip">${esc(catRaw)}</span>` : '',
+    flamType ? `<span class="modal-chip type">${esc(flamType)}</span>` : ''
+  ].filter(Boolean).join('');
+  document.getElementById('modal-chips').innerHTML = chips;
+
+  // Action links
+  const linksEl = document.getElementById('modal-links');
+  linksEl.innerHTML='';
+  if(flamLink){
+    const a=document.createElement('a');
+    a.href=flamLink; a.target='_blank'; a.rel='noopener';
+    a.className='link-btn primary';
+    a.innerHTML=`<svg width="12" height="12" viewBox="0 0 12 12"><polygon points="2,1 11,6 2,11" fill="currentColor"/></svg> Open Flam Experience`;
+    linksEl.appendChild(a);
+  }
+  trigLinks.forEach((url,i)=>{
+    const a=document.createElement('a');
+    a.href=url; a.target='_blank'; a.rel='noopener';
+    a.className='link-btn secondary';
+    a.innerHTML=`<svg width="11" height="11" viewBox="0 0 11 11"><path d="M1 10L10 1M10 1H5M10 1V6"/></svg> ${trigLinks.length>1?`Trigger Image ${i+1}`:'Trigger Image'}`;
+    linksEl.appendChild(a);
+  });
+  vidLinks.forEach((url,i)=>{
+    const a=document.createElement('a');
+    a.href=url; a.target='_blank'; a.rel='noopener';
+    a.className='link-btn secondary';
+    a.innerHTML=`<svg width="11" height="11" viewBox="0 0 11 11"><path d="M1 10L10 1M10 1H5M10 1V6"/></svg> ${vidLinks.length>1?`Mock Video ${i+1}`:'Mock Video'}`;
+    linksEl.appendChild(a);
+  });
+
+  // Extra metadata
+  const shownCols = new Set([S.cols.title,S.cols.thumb,S.cols.flam,S.cols.flamtype,S.cols.cat,S.cols.trigger,S.cols.video].filter(Boolean));
+  const extra = S.headers.filter(h=>!shownCols.has(h)&&row[h]).map(h=>({k:h,v:row[h]}));
+  document.getElementById('modal-meta').innerHTML = extra.map(e=>`<div class="meta-item"><div class="mk">${esc(e.k)}</div><div class="mv">${esc(e.v)}</div></div>`).join('');
+
+  // Build player area
+  renderModalPlayer(0);
+
+  document.getElementById('modal-bg').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function renderModalPlayer(idx){
+  _currentAssetIdx = idx;
+  const wrap = document.getElementById('modal-player-wrap');
+
+  if(_currentAssets.length === 0){
+    wrap.innerHTML=`<div class="modal-player"><div class="no-embed"><div class="no-embed-icon">▶</div><div>No preview assets available</div></div></div>`;
+    return;
+  }
+
+  // Tab bar (only if >1 asset)
+  let tabsHTML='';
+  if(_currentAssets.length>1){
+    tabsHTML=`<div class="asset-tabs">${_currentAssets.map((a,i)=>`<div class="asset-tab${i===idx?' on':''}" data-aidx="${i}">${esc(a.label)}</div>`).join('')}</div>`;
+  }
+
+  const asset = _currentAssets[idx];
+  const previewUrl = drivePreview(asset.url);
+  let playerHTML='';
+
+  if(previewUrl){
+    if(asset.kind==='video'){
+      // Drive video via iframe preview — plays natively
+      playerHTML=`<div class="modal-player"><iframe src="${previewUrl}" allowfullscreen allow="autoplay; encrypted-media"></iframe></div>`;
+    } else {
+      // Drive image via img tag (thumbnail API gives better quality for images)
+      const tid = driveId(asset.url);
+      playerHTML=`<div class="modal-player"><img src="https://drive.google.com/thumbnail?id=${tid}&sz=w1200" alt="" onerror="this.src='${previewUrl}'"></div>`;
+    }
+  } else {
+    playerHTML=`<div class="modal-player"><div class="no-embed"><div class="no-embed-icon">${asset.kind==='image'?'🖼':'▶'}</div><div>Can't preview directly</div><a class="link-btn primary" href="${esc(asset.url)}" target="_blank" style="text-decoration:none;margin-top:4px">Open in Drive ↗</a></div></div>`;
+  }
+
+  wrap.innerHTML = tabsHTML + playerHTML;
+
+  // Attach tab click handlers
+  wrap.querySelectorAll('.asset-tab').forEach(tab=>{
+    tab.addEventListener('click',()=>renderModalPlayer(parseInt(tab.dataset.aidx)));
+  });
+}
+
+function closeModal(){
+  document.getElementById('modal-bg').classList.remove('open');
+  document.getElementById('modal-player-wrap').innerHTML='';
+  document.body.style.overflow='';
+  _currentAssets=[];
+}
+
+document.getElementById('modal-close').addEventListener('click',closeModal);
+document.getElementById('modal-bg').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeModal(); });
+
+// ══════════════════════════════════════════════════
+//  SETTINGS PANEL
+// ══════════════════════════════════════════════════
+function openPanel(){
+  document.getElementById('panel-api-url').value = S.apiUrl||'';
+  document.getElementById('panel-status').innerHTML = S.source==='api'
+    ? `<span class="src-badge live"><span class="dot"></span>Live — Apps Script</span>`
+    : `<span class="src-badge manual"><span class="dot"></span>Manual — pasted CSV</span>`;
+  populateColSelects();
+  document.getElementById('panel-overlay').classList.add('open');
+  document.getElementById('panel').classList.add('open');
+}
+function closePanel(){
+  document.getElementById('panel-overlay').classList.remove('open');
+  document.getElementById('panel').classList.remove('open');
+}
+
+function populateColSelects(){
+  const map = { 'col-title':'title','col-thumb':'thumb','col-flam':'flam','col-flamtype':'flamtype','col-cat':'cat','col-trigger':'trigger','col-video':'video' };
+  const optional = new Set(['col-thumb','col-trigger','col-video','col-flamtype','col-cat']);
+  Object.entries(map).forEach(([id,key])=>{
+    const el=document.getElementById(id);
+    el.innerHTML=optional.has(id)?'<option value="">— none —</option>':'';
+    S.headers.forEach(h=>{ const o=document.createElement('option');o.value=o.textContent=h;el.appendChild(o); });
+    el.value=S.cols[key]||'';
+  });
+}
+
+document.getElementById('settings-btn').addEventListener('click',openPanel);
+document.getElementById('panel-close').addEventListener('click',closePanel);
+document.getElementById('panel-overlay').addEventListener('click',closePanel);
+
+document.getElementById('repaste-btn').addEventListener('click',()=>{
+  const t=document.getElementById('repaste').value.trim();
+  if(!t)return;
+  loadFromPaste(t,msg=>alert('Parse error: '+msg));
+  closePanel();
+});
+document.getElementById('panel-api-btn').addEventListener('click',async()=>{
+  const url=document.getElementById('panel-api-url').value.trim();
+  if(!url)return;
+  const btn=document.getElementById('panel-api-btn');
+  btn.textContent='Connecting…';btn.disabled=true;
+  await loadFromAPI(url,msg=>alert('Error: '+msg));
+  btn.textContent='Connect & reload';btn.disabled=false;
+  closePanel();
+});
+document.getElementById('apply-cols').addEventListener('click',()=>{
+  ['title','thumb','flam','flamtype','cat','trigger','video'].forEach(k=>{
+    S.cols[k]=document.getElementById('col-'+k).value;
+  });
+  persist();buildFilters();renderAll();closePanel();
+});
+
+// ══════════════════════════════════════════════════
+//  SETUP SCREEN EVENTS
+// ══════════════════════════════════════════════════
+// Tab switching
+document.querySelectorAll('.tab[data-tab]').forEach(b=>{
+  b.addEventListener('click',()=>{
+    const t=b.dataset.tab;
+    document.querySelectorAll('.tab[data-tab]').forEach(x=>x.classList.toggle('on',x.dataset.tab===t));
+    document.getElementById('s-paste').classList.toggle('on',t==='s-paste');
+    document.getElementById('s-api').classList.toggle('on',t==='s-api');
+  });
+});
+document.querySelectorAll('.tab[data-ptab]').forEach(b=>{
+  b.addEventListener('click',()=>{
+    const t=b.dataset.ptab;
+    document.querySelectorAll('.tab[data-ptab]').forEach(x=>x.classList.toggle('on',x.dataset.ptab===t));
+    document.getElementById('pp-paste').classList.toggle('on',t==='pp-paste');
+    document.getElementById('pp-api').classList.toggle('on',t==='pp-api');
+  });
+});
+
+document.getElementById('paste-btn').addEventListener('click',()=>{
+  const t=document.getElementById('paste-in').value.trim();
+  const err=document.getElementById('paste-err');
+  if(!t){err.textContent='Please paste CSV data first.';err.style.display='';return;}
+  err.style.display='none';
+  loadFromPaste(t,msg=>{err.textContent=msg;err.style.display='';});
+});
+document.getElementById('api-btn').addEventListener('click',async()=>{
+  const url=document.getElementById('api-in').value.trim();
+  const err=document.getElementById('api-err');
+  const btn=document.getElementById('api-btn');
+  if(!url){err.textContent='Please enter the Apps Script URL.';err.style.display='';return;}
+  err.style.display='none';btn.textContent='Connecting…';btn.disabled=true;
+  await loadFromAPI(url,msg=>{err.textContent='Error: '+msg;err.style.display='';});
+  btn.textContent='Connect →';btn.disabled=false;
+});
+
+// ══════════════════════════════════════════════════
+//  CONTROLS
+// ══════════════════════════════════════════════════
+document.getElementById('search').addEventListener('input',e=>{S.search=e.target.value;renderAll();});
+document.getElementById('sort').addEventListener('change',e=>{S.sort=e.target.value;renderAll();});
+document.getElementById('clear-btn').addEventListener('click',()=>{
+  S.filters={cat:null,type:null};S.search='';
+  document.getElementById('search').value='';
+  document.querySelectorAll('.f-row.on').forEach(el=>el.classList.remove('on'));
+  renderAll();
+});
+document.getElementById('vg').addEventListener('click',()=>{S.view='grid';document.getElementById('vg').classList.add('on');document.getElementById('vl').classList.remove('on');renderAll();});
+document.getElementById('vl').addEventListener('click',()=>{S.view='list';document.getElementById('vl').classList.add('on');document.getElementById('vg').classList.remove('on');renderAll();});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){closeModal();closePanel();} });
+
+// ══════════════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════════════
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ══════════════════════════════════════════════════
+//  BOOT
+// ══════════════════════════════════════════════════
+(function boot(){
+  if(S.source==='api' && S.apiUrl){
+    document.getElementById('setup').style.display='none';
+    document.getElementById('app').style.display='';
+    document.getElementById('grid').innerHTML=`<div class="state-box"><div class="spinner"></div></div>`;
+    loadFromAPI(S.apiUrl, ()=>{
+      document.getElementById('grid').innerHTML=`<div class="state-box"><div class="empty-state"><div class="empty-icon">⚠</div><div class="empty-title">Couldn't reconnect</div><div class="empty-sub">Check your Apps Script URL in Settings</div></div></div>`;
+    });
+  } else if(S.source==='paste' && S.csv){
+    loadFromPaste(S.csv, ()=>{});
+  }
+  // else: show setup screen
+})();
+</script>
+</body>
+</html>
