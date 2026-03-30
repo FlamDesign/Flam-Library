@@ -404,19 +404,19 @@ button,select{font-family:var(--font-b)}
 //  STATE
 // ══════════════════════════════════════════════════
 const STORAGE_KEY = 'flamLib4';
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbyPruix4zL0MpO34GwEkzNxQGpxFEulC4NMZBhSqdCprc7RwWTynDfWv438rSQC0Vyw/exec';
 let S = {
   rows:[], headers:[],
   cols:{ title:'Title', thumb:'Meta Image', flam:'Flam Link', flamtype:'Flam Type', cat:'Category', trigger:'Trigger Image Link', video:'Mock Videos' },
   filters:{ cat:null, type:null },
   search:'', sort:'', view:'grid',
-  source:null, apiUrl:'', csv:''
+  source:'api', apiUrl: DEFAULT_API_URL, csv:''
 };
 try {
   const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
-  if(saved.cols)    Object.assign(S.cols, saved.cols);
-  if(saved.source)  S.source  = saved.source;
-  if(saved.apiUrl)  S.apiUrl  = saved.apiUrl;
-  if(saved.csv)     S.csv     = saved.csv;
+  if(saved.cols) Object.assign(S.cols, saved.cols);
+  if(saved.apiUrl) S.apiUrl = saved.apiUrl;
+  if(saved.csv)    S.csv    = saved.csv;
 } catch(e){}
 
 function persist(){
@@ -921,14 +921,17 @@ function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
 //  BOOT
 // ══════════════════════════════════════════════════
 (function boot(){
-  if(S.source==='api' && S.apiUrl){
+  // Always try to load from API first (URL is hardcoded — works for everyone)
+  if(S.apiUrl){
     document.getElementById('setup').style.display='none';
     document.getElementById('app').style.display='';
     document.getElementById('grid').innerHTML=`<div class="state-box"><div class="spinner"></div></div>`;
     loadFromAPI(S.apiUrl, ()=>{
-      document.getElementById('grid').innerHTML=`<div class="state-box"><div class="empty-state"><div class="empty-icon">⚠</div><div class="empty-title">Couldn't reconnect</div><div class="empty-sub">Check your Apps Script URL in Settings</div></div></div>`;
+      // API failed — fall back to pasted CSV if available, else show error
+      if(S.csv){ loadFromPaste(S.csv, ()=>{}); return; }
+      document.getElementById('grid').innerHTML=`<div class="state-box"><div class="empty-state"><div class="empty-icon">⚠</div><div class="empty-title">Couldn't load data</div><div class="empty-sub">Check your connection or update the API URL in ⚙ Settings</div></div></div>`;
     });
-  } else if(S.source==='paste' && S.csv){
+  } else if(S.csv){
     loadFromPaste(S.csv, ()=>{});
   }
   // else: show setup screen
