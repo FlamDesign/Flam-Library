@@ -105,7 +105,8 @@ button,select{font-family:var(--font-b)}
 @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
 .c-thumb{position:relative;aspect-ratio:16/9;background:var(--wash);overflow:hidden}
-.c-thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s cubic-bezier(.22,.68,0,1.2)}
+.c-thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s cubic-bezier(.22,.68,0,1.2),opacity .3s ease;opacity:0}
+.c-thumb img.loaded{opacity:1}
 .card:hover .c-thumb img{transform:scale(1.04)}
 .thumb-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(140deg,var(--wash) 0%,var(--rule) 100%)}
 
@@ -241,6 +242,22 @@ button,select{font-family:var(--font-b)}
 .divider{display:flex;align-items:center;gap:10px;margin:18px 0}
 .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--rule)}
 .divider span{font-size:11px;color:var(--ink3)}
+
+/* ── SKELETON LOADER ── */
+@keyframes shimmer{
+  0%{background-position:-600px 0}
+  100%{background-position:600px 0}
+}
+.skel{
+  border-radius:6px;
+  background:linear-gradient(90deg,var(--rule) 25%,var(--wash) 50%,var(--rule) 75%);
+  background-size:600px 100%;
+  animation:shimmer 1.4s ease-in-out infinite;
+}
+.skel-card{ pointer-events:none; }
+.skel-thumb{ width:100%;aspect-ratio:16/9;border-radius:0; }
+.skel-title{ height:13px;width:90%;border-radius:4px; }
+.skel-tag{ height:20px;width:64px;border-radius:10px; }
 
 /* ── MOBILE FILTER BAR (hidden on desktop) ── */
 .mobile-filters{display:none}
@@ -706,23 +723,139 @@ function loadFromPaste(text, onErr){
   } catch(e){ if(onErr) onErr(e.message); }
 }
 
+// ── CACHE CONFIG ──
+const CACHE_KEY   = 'flamLib_cache';
+const CACHE_TTL   = 30 * 60 * 1000; // 30 minutes
+
+function readCache(){
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if(!raw) return null;
+    const c = JSON.parse(raw);
+    if(!c.ts || !c.headers || !c.rows) return null;
+    return c;
+  } catch(e){ return null; }
+}
+
+function writeCache(headers, rows){
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), headers, rows }));
+  } catch(e){
+    // localStorage full — clear old cache and try once more
+    localStorage.removeItem(CACHE_KEY);
+  }
+}
+
+function cacheAge(cache){
+  return cache ? Date.now() - cache.ts : Infinity;
+}
+
+async function fetchFromAPI(url){
+  const res = await fetch(url);
+  if(!res.ok) throw new Error('Server error ' + res.status);
+  const data = await res.json();
+  if(data.error) throw new Error(data.error);
+  if(!data.headers || !data.rows) throw new Error('Unexpected response format');
+  return { headers: data.headers, rows: data.rows };
+}
+
 async function loadFromAPI(url, onErr){
   try {
-    const res = await fetch(url);
-    if(!res.ok) throw new Error('Server error '+res.status);
-    const data = await res.json();
-    if(data.error) throw new Error(data.error);
-    if(!data.headers||!data.rows) throw new Error('Unexpected response format');
+    const { headers, rows } = await fetchFromAPI(url);
     S.source='api'; S.apiUrl=url;
-    ingest(data.headers, data.rows);
+    writeCache(headers, rows);
+    ingest(headers, rows);
+    updateCacheBadge(false);
   } catch(e){ if(onErr) onErr(e.message); }
 }
 
+// Load instantly from cache, then silently refresh in background
+async function loadWithCache(url){
+  const cache = readCache();
+  const age   = cacheAge(cache);
+  const stale = age > CACHE_TTL;
+
+  if(cache){
+    // Show cached data immediately — zero wait
+    S.source='api'; S.apiUrl=url;
+    ingest(cache.headers, cache.rows);
+    updateCacheBadge(!stale);
+
+    if(stale){
+      // Cache is old — refresh silently in background
+      silentRefresh(url);
+    }
+  } else {
+    // No cache — show skeleton and fetch
+    showSkeleton();
+    try {
+      const { headers, rows } = await fetchFromAPI(url);
+      S.source='api'; S.apiUrl=url;
+      writeCache(headers, rows);
+      ingest(headers, rows);
+      updateCacheBadge(false);
+    } catch(e){
+      hideSkeleton();
+      document.getElementById('grid').innerHTML=`<div class="state-box"><div class="empty-state"><div class="empty-icon">⚠</div><div class="empty-title">Couldn't load data</div><div class="empty-sub">Check your connection or update the API URL in ⚙ Settings</div></div></div>`;
+    }
+  }
+}
+
+async function silentRefresh(url){
+  try {
+    const { headers, rows } = await fetchFromAPI(url);
+    writeCache(headers, rows);
+    // Only re-render if data actually changed
+    const changed = JSON.stringify(rows) !== JSON.stringify(S.rows);
+    if(changed){
+      ingest(headers, rows);
+    }
+    updateCacheBadge(false);
+  } catch(e){
+    // Silent fail — cached data stays
+  }
+}
+
+function updateCacheBadge(fresh){
+  const badge = document.getElementById('src-badge');
+  if(!badge) return;
+  // fresh = served from recent cache, false = just fetched live
+  const cache = readCache();
+  if(!cache){ badge.innerHTML=''; return; }
+  const mins = Math.round(cacheAge(cache) / 60000);
+  const label = mins < 1 ? 'Just updated' : mins < 60 ? `Updated ${mins}m ago` : 'Cached';
+  badge.innerHTML = `<span class="src-badge live" title="${label}"><span class="dot"></span>Live</span>`;
+}
+
+// ── SKELETON LOADER ──
+function showSkeleton(){
+  const grid = document.getElementById('grid');
+  grid.className = 'grid';
+  grid.innerHTML = Array.from({length:8}, (_,i) => `
+    <div class="card skel-card" style="animation-delay:${i*40}ms">
+      <div class="skel skel-thumb"></div>
+      <div style="padding:13px 14px 14px">
+        <div class="skel skel-title"></div>
+        <div class="skel skel-title" style="width:65%;margin-top:6px"></div>
+        <div style="display:flex;gap:5px;margin-top:10px">
+          <div class="skel skel-tag"></div>
+          <div class="skel skel-tag" style="width:52px"></div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function hideSkeleton(){
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+}
+
 function updateSourceBadge(){
-  const el = document.getElementById('src-badge');
-  el.innerHTML = S.source==='api'
-    ? `<span class="src-badge live"><span class="dot"></span>Live</span>`
-    : `<span class="src-badge manual"><span class="dot"></span>Manual</span>`;
+  // Handled by updateCacheBadge when using API; fallback for manual/paste mode
+  if(S.source !== 'api'){
+    const el = document.getElementById('src-badge');
+    if(el) el.innerHTML = `<span class="src-badge manual"><span class="dot"></span>Manual</span>`;
+  }
 }
 
 // ══════════════════════════════════════════════════
@@ -877,14 +1010,14 @@ function renderAll(){
     if(thumbUrl && isDriveLink(thumbUrl)){
       const tid = driveId(thumbUrl);
       if(tid){
-        thumbHTML = `<img src="https://drive.google.com/thumbnail?id=${tid}&sz=w400" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        thumbHTML = `<img src="https://drive.google.com/thumbnail?id=${tid}&sz=w400" alt="" loading="lazy" onload="this.classList.add('loaded')" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
         <div class="thumb-ph" style="display:none">${thumbPH()}</div>`;
       }
     } else if(trigLinks.length){
       // Use first trigger image as fallback thumb
       const fid = driveId(trigLinks[0]);
       if(fid){
-        thumbHTML = `<img src="https://drive.google.com/thumbnail?id=${fid}&sz=w400" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        thumbHTML = `<img src="https://drive.google.com/thumbnail?id=${fid}&sz=w400" alt="" loading="lazy" onload="this.classList.add('loaded')" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
         <div class="thumb-ph" style="display:none">${thumbPH()}</div>`;
       }
     }
@@ -1240,17 +1373,13 @@ function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
 //  BOOT
 // ══════════════════════════════════════════════════
 (function boot(){
-  // Always try to load from API first (URL is hardcoded — works for everyone)
   if(S.apiUrl){
     document.getElementById('setup').style.display='none';
     document.getElementById('app').style.display='';
-    document.getElementById('grid').innerHTML=`<div class="state-box"><div class="spinner"></div></div>`;
-    loadFromAPI(S.apiUrl, ()=>{
-      // API failed — fall back to pasted CSV if available, else show error
-      if(S.csv){ loadFromPaste(S.csv, ()=>{}); return; }
-      document.getElementById('grid').innerHTML=`<div class="state-box"><div class="empty-state"><div class="empty-icon">⚠</div><div class="empty-title">Couldn't load data</div><div class="empty-sub">Check your connection or update the API URL in ⚙ Settings</div></div></div>`;
-    });
+    loadWithCache(S.apiUrl);
   } else if(S.csv){
+    document.getElementById('setup').style.display='none';
+    document.getElementById('app').style.display='';
     loadFromPaste(S.csv, ()=>{});
   }
   // else: show setup screen
