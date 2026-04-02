@@ -422,6 +422,8 @@ button,select{font-family:var(--font-b)}
 }
 </style>
 </head>
+<!-- jsPDF for direct PDF download -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <body>
 
 <!-- ══ SETUP ══════════════════════════════════════════ -->
@@ -1126,34 +1128,147 @@ function exportCardCSV(row, title){
 
 // ── EXPORT PDF (print-friendly page) ──
 function exportCardPDF(row, title, flamLink, trigLinks, vidLinks){
-  const fields = S.headers.filter(h=>row[h]).map(h=>`
-    <tr><td style="padding:6px 12px 6px 0;font-size:12px;color:#777;white-space:nowrap;vertical-align:top;font-weight:500;text-transform:uppercase;letter-spacing:.5px;width:140px">${h}</td>
-        <td style="padding:6px 0;font-size:13px;color:#111;word-break:break-all">${row[h]}</td></tr>`).join('');
+  // Guard — jsPDF loaded from CDN
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    showToast('PDF library still loading — try again in a second');
+    return;
+  }
 
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+  const PAGE_W   = 210;
+  const MARGIN   = 18;
+  const COL_W    = 48;   // label column width
+  const TEXT_W   = PAGE_W - MARGIN * 2 - COL_W; // value column width
+  const LINE_H   = 6;
+  const ACCENT   = [232, 75, 26];   // #e84b1a
+  const DARK     = [24, 18, 14];    // --ink
+  const MUTED    = [120, 110, 105];
+  const RULE     = [230, 226, 218];
+
+  let y = MARGIN;
+
+  // ── HEADER ──
+  doc.setFillColor(...ACCENT);
+  doc.rect(MARGIN, y, 6, 6, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  doc.setTextColor(...ACCENT);
+  doc.text('FLAM LIBRARY', MARGIN + 9, y + 4.5);
+
+  y += 12;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(18);
+  doc.setTextColor(...DARK);
+  // Wrap long titles
+  const titleLines = doc.splitTextToSize(title, PAGE_W - MARGIN * 2);
+  doc.text(titleLines, MARGIN, y);
+  y += titleLines.length * 7 + 2;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(...MUTED);
+  doc.text('Exported ' + new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}), MARGIN, y);
+  y += 3;
+
+  // Rule under header
+  doc.setDrawColor(...RULE);
+  doc.setLineWidth(0.4);
+  doc.line(MARGIN, y + 2, PAGE_W - MARGIN, y + 2);
+  y += 8;
+
+  // ── FIELDS TABLE ──
+  doc.setFontSize(8);
+  const fields = S.headers.filter(h => row[h] && h !== '_driveNames');
+
+  fields.forEach((h, i) => {
+    const val = row[h];
+    const labelLines = doc.splitTextToSize(h.toUpperCase(), COL_W - 4);
+    const valueLines = doc.splitTextToSize(val, TEXT_W);
+    const rowH = Math.max(labelLines.length, valueLines.length) * LINE_H + 3;
+
+    // Zebra stripe
+    if (i % 2 === 0) {
+      doc.setFillColor(248, 246, 244);
+      doc.rect(MARGIN, y - 1, PAGE_W - MARGIN * 2, rowH, 'F');
+    }
+
+    // Label
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...MUTED);
+    doc.text(labelLines, MARGIN + 2, y + 3.5);
+
+    // Value
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...DARK);
+    doc.text(valueLines, MARGIN + COL_W, y + 3.5);
+
+    y += rowH;
+
+    // Page break guard
+    if (y > 270) {
+      doc.addPage();
+      y = MARGIN;
+    }
+  });
+
+  // ── LINKS SECTION ──
   const allLinks = [
-    flamLink ? `<a href="${flamLink}" style="color:#e84b1a">${flamLink}</a>` : '',
-    ...trigLinks.map((u,i)=>`<a href="${u}" style="color:#555">Trigger Image${trigLinks.length>1?' '+(i+1):''}: ${u}</a>`),
-    ...vidLinks.map((u,i)=>`<a href="${u}" style="color:#555">Mock Video${vidLinks.length>1?' '+(i+1):''}: ${u}</a>`)
+    flamLink ? { label: 'Flam Experience', url: flamLink, accent: true } : null,
+    ...trigLinks.map((u, i) => ({ label: 'Trigger Image' + (trigLinks.length > 1 ? ' ' + (i+1) : ''), url: u })),
+    ...vidLinks.map((u, i)  => ({ label: 'Mock Video'    + (vidLinks.length  > 1 ? ' ' + (i+1) : ''), url: u }))
   ].filter(Boolean);
 
-  const win = window.open('','_blank');
-  win.document.write(`<!DOCTYPE html><html><head><title>${title}</title>
-  <style>body{font-family:-apple-system,sans-serif;max-width:700px;margin:40px auto;padding:0 20px;color:#111}
-  h1{font-size:24px;margin-bottom:4px}
-  .sub{font-size:13px;color:#888;margin-bottom:24px}
-  table{width:100%;border-collapse:collapse;margin-bottom:24px}
-  tr{border-bottom:1px solid #eee}
-  .links{font-size:13px;line-height:2}
-  .links a{display:block;word-break:break-all}
-  @media print{body{margin:20px}}
-  </style></head><body>
-  <h1>${title}</h1>
-  <div class="sub">Exported from Flam Library · ${new Date().toLocaleDateString()}</div>
-  <table>${fields}</table>
-  ${allLinks.length ? `<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:#aaa;margin-bottom:8px">Links</div><div class="links">${allLinks.join('')}</div>` : ''}
-  <script>window.onload=()=>{window.print()}<\/script>
-  </body></html>`);
-  win.document.close();
+  if (allLinks.length) {
+    y += 4;
+    doc.setDrawColor(...RULE);
+    doc.line(MARGIN, y, PAGE_W - MARGIN, y);
+    y += 6;
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(...MUTED);
+    doc.text('LINKS & ASSETS', MARGIN, y);
+    y += 6;
+
+    allLinks.forEach(({ label, url, accent }) => {
+      if (y > 270) { doc.addPage(); y = MARGIN; }
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(accent ? ACCENT[0] : DARK[0], accent ? ACCENT[1] : DARK[1], accent ? ACCENT[2] : DARK[2]);
+      doc.text(label, MARGIN, y);
+
+      y += 4.5;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(100, 100, 100);
+      const urlLines = doc.splitTextToSize(url, PAGE_W - MARGIN * 2);
+      doc.textWithLink(urlLines[0], MARGIN, y, { url });
+      if (urlLines.length > 1) {
+        y += 4;
+        doc.text(urlLines.slice(1).join(''), MARGIN, y);
+      }
+      y += 6;
+    });
+  }
+
+  // ── FOOTER ──
+  const pageCount = doc.getNumberOfPages();
+  for (let p = 1; p <= pageCount; p++) {
+    doc.setPage(p);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(...MUTED);
+    doc.text('Flam Library Export', MARGIN, 292);
+    doc.text('Page ' + p + ' of ' + pageCount, PAGE_W - MARGIN, 292, { align: 'right' });
+  }
+
+  // ── SAVE ──
+  const safeTitle = (title || 'experience').replace(/[^a-z0-9]/gi, '_');
+  doc.save(safeTitle + '.pdf');
+  showToast('PDF downloaded ✓');
 }
 
 // ── SHARE LINK ──
