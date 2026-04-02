@@ -157,9 +157,14 @@ button,select{font-family:var(--font-b)}
 @keyframes popup{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
 
 /* modal player area */
-.modal-player{width:100%;aspect-ratio:16/9;background:#0e0e0e;border-radius:16px 16px 0 0;overflow:hidden;position:relative}
-.modal-player iframe{width:100%;height:100%;border:none;display:block}
+.modal-player{width:100%;aspect-ratio:16/9;background:#0e0e0e;border-radius:16px 16px 0 0;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center}
+.modal-player iframe{position:absolute;inset:0;width:100%;height:100%;border:none;display:block;z-index:2}
 .modal-player img{width:100%;height:100%;object-fit:contain;display:block;background:#111}
+.modal-player .video-poster{position:absolute;inset:0;background:#0e0e0e;display:flex;align-items:center;justify-content:center;z-index:1;transition:opacity .3s}
+.modal-player .video-poster img{width:100%;height:100%;object-fit:cover;opacity:.5}
+.modal-player .video-poster .play-ring-lg{position:absolute;width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(0,0,0,.4)}
+.modal-player .video-poster .play-ring-lg svg{width:18px;fill:#111;margin-left:3px}
+.modal-player.ready .video-poster{opacity:0;pointer-events:none}
 
 /* no-embed fallback */
 .no-embed{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:var(--wash);color:var(--ink3);font-size:13px}
@@ -194,6 +199,19 @@ button,select{font-family:var(--font-b)}
 .modal-meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;padding-top:16px;border-top:1px solid var(--rule)}
 .meta-item .mk{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink3);font-weight:500;margin-bottom:3px}
 .meta-item .mv{font-size:13px;color:var(--ink)}
+
+/* new-this-week badge */
+.new-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;padding:2px 8px;border-radius:4px;background:#fef9c3;color:#854d0e;border:1px solid #fde68a;vertical-align:middle;margin-left:6px}
+
+/* modal action row */
+.modal-actions{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.modal-action-btn{height:30px;padding:0 12px;border-radius:6px;border:1px solid var(--rule2);background:transparent;font-family:var(--font-b);font-size:12px;color:var(--ink2);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s;white-space:nowrap}
+.modal-action-btn:hover{border-color:var(--ink);color:var(--ink)}
+.modal-action-btn.copied{border-color:var(--green);color:var(--green);background:var(--green-bg)}
+
+/* toast notification */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;font-size:13px;font-weight:500;padding:10px 20px;border-radius:10px;z-index:999;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* ── SETTINGS PANEL ── */
 .panel-overlay{display:none;position:fixed;inset:0;z-index:250;background:rgba(24,18,14,.35)}
@@ -532,8 +550,12 @@ button,select{font-family:var(--font-b)}
       <div class="modal-top">
         <div class="modal-title" id="modal-title"></div>
         <button class="close-btn" id="modal-close"><svg width="10" height="10" viewBox="0 0 10 10"><line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/></svg></button>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
       </div>
       <div class="modal-chips" id="modal-chips"></div>
+      <div class="modal-actions" id="modal-actions"></div>
       <div class="modal-links" id="modal-links"></div>
       <div class="modal-meta" id="modal-meta"></div>
     </div>
@@ -710,6 +732,8 @@ function ingest(headers, rows){
   document.getElementById('setup').style.display = 'none';
   document.getElementById('app').style.display   = '';
   updateSourceBadge();
+  // Check if there's a deep link to open
+  setTimeout(checkDeepLink, 100);
 }
 
 // ══════════════════════════════════════════════════
@@ -1030,11 +1054,13 @@ function renderAll(){
     const card = document.createElement('div');
     card.className='card';
     card.style.animationDelay = Math.min(i*16,220)+'ms';
+    const isNew = isNewThisWeek(row);
     card.innerHTML=`
       <div class="c-thumb">
         ${thumbHTML}
         <div class="play-veil"><div class="play-disc"><svg viewBox="0 0 14 14"><polygon points="2,1 13,7 2,13"/></svg></div></div>
         ${flamType?`<div class="type-badge">${esc(flamType)}</div>`:''}
+        ${isNew?`<div style="position:absolute;top:8px;right:8px;font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;background:#fef9c3;color:#854d0e;border:1px solid #fde68a;letter-spacing:.4px;text-transform:uppercase">✦ New</div>`:''}
       </div>
       <div class="c-body">
         <div class="c-title">${esc(title)}</div>
@@ -1068,62 +1094,191 @@ function thumbPH(){
 let _currentAssets = [];
 let _currentAssetIdx = 0;
 
-function openModal({ row, title, flamLink, flamType, catRaw, tags, trigLinks, vidLinks }){
-  // Build asset list: videos first, then trigger images
-  // Each asset: { label, url, kind: 'video'|'image'|'flam' }
-  const assets = [];
+// ── TOAST ──
+function showToast(msg, duration=2200){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), duration);
+}
 
+// ── "NEW THIS WEEK" helper ──
+function isNewThisWeek(row){
+  // Look for any date column
+  const dateCol = S.headers.find(h=>/date|added|created|published/i.test(h));
+  if(!dateCol || !row[dateCol]) return false;
+  const d = new Date(row[dateCol]);
+  if(isNaN(d)) return false;
+  return (Date.now() - d.getTime()) < 7 * 24 * 60 * 60 * 1000;
+}
+
+// ── EXPORT CSV ──
+function exportCardCSV(row, title){
+  const lines = [['Field','Value']];
+  S.headers.forEach(h=>{ if(row[h]) lines.push([h, row[h]]); });
+  const csv = lines.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (title||'experience').replace(/[^a-z0-9]/gi,'_')+'.csv';
+  a.click(); URL.revokeObjectURL(a.href);
+  showToast('CSV downloaded');
+}
+
+// ── EXPORT PDF (print-friendly page) ──
+function exportCardPDF(row, title, flamLink, trigLinks, vidLinks){
+  const fields = S.headers.filter(h=>row[h]).map(h=>`
+    <tr><td style="padding:6px 12px 6px 0;font-size:12px;color:#777;white-space:nowrap;vertical-align:top;font-weight:500;text-transform:uppercase;letter-spacing:.5px;width:140px">${h}</td>
+        <td style="padding:6px 0;font-size:13px;color:#111;word-break:break-all">${row[h]}</td></tr>`).join('');
+
+  const allLinks = [
+    flamLink ? `<a href="${flamLink}" style="color:#e84b1a">${flamLink}</a>` : '',
+    ...trigLinks.map((u,i)=>`<a href="${u}" style="color:#555">Trigger Image${trigLinks.length>1?' '+(i+1):''}: ${u}</a>`),
+    ...vidLinks.map((u,i)=>`<a href="${u}" style="color:#555">Mock Video${vidLinks.length>1?' '+(i+1):''}: ${u}</a>`)
+  ].filter(Boolean);
+
+  const win = window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>${title}</title>
+  <style>body{font-family:-apple-system,sans-serif;max-width:700px;margin:40px auto;padding:0 20px;color:#111}
+  h1{font-size:24px;margin-bottom:4px}
+  .sub{font-size:13px;color:#888;margin-bottom:24px}
+  table{width:100%;border-collapse:collapse;margin-bottom:24px}
+  tr{border-bottom:1px solid #eee}
+  .links{font-size:13px;line-height:2}
+  .links a{display:block;word-break:break-all}
+  @media print{body{margin:20px}}
+  </style></head><body>
+  <h1>${title}</h1>
+  <div class="sub">Exported from Flam Library · ${new Date().toLocaleDateString()}</div>
+  <table>${fields}</table>
+  ${allLinks.length ? `<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:#aaa;margin-bottom:8px">Links</div><div class="links">${allLinks.join('')}</div>` : ''}
+  <script>window.onload=()=>{window.print()}<\/script>
+  </body></html>`);
+  win.document.close();
+}
+
+// ── SHARE LINK ──
+function shareCard(title){
+  const url = new URL(window.location.href);
+  url.searchParams.set('exp', encodeURIComponent(title));
+  navigator.clipboard.writeText(url.toString()).then(()=>{
+    showToast('Link copied to clipboard ✓');
+    const btn=document.getElementById('share-btn');
+    if(btn){ btn.classList.add('copied'); setTimeout(()=>btn.classList.remove('copied'),2000); }
+  }).catch(()=>{
+    // Fallback for non-https
+    prompt('Copy this link:', url.toString());
+  });
+}
+
+// ── DEEP LINK on load ──
+function checkDeepLink(){
+  const params = new URLSearchParams(window.location.search);
+  const expName = params.get('exp');
+  if(!expName || !S.rows.length) return;
+  const decoded = decodeURIComponent(expName);
+  const row = S.rows.find(r=>cv(r,S.cols.title).toLowerCase()===decoded.toLowerCase());
+  if(!row) return;
+  const cols=S.cols;
+  openModal({
+    row, title:cv(row,cols.title),
+    flamLink:cv(row,cols.flam), flamType:cv(row,cols.flamtype),
+    catRaw:cv(row,cols.cat), tags:cv(row,cols.cat).split(',').map(s=>s.trim()).filter(Boolean),
+    trigLinks:parseDriveLinks(cv(row,cols.trigger)),
+    vidLinks:parseDriveLinks(cv(row,cols.video))
+  });
+}
+
+let _currentRow = null;
+
+function openModal({ row, title, flamLink, flamType, catRaw, tags, trigLinks, vidLinks }){
+  _currentRow = row;
+
+  // Build asset list: videos first, then trigger images
+  // Use real Drive filenames if available (from _driveNames column via Apps Script)
+  let driveNames = {};
+  try { driveNames = JSON.parse(row['_driveNames'] || '{}'); } catch(e) {}
+
+  function getDriveName(col, idx, fallback) {
+    const names = driveNames[col];
+    if (names && names[idx]) return names[idx];
+    return fallback;
+  }
+
+  const assets = [];
   vidLinks.forEach((url,i)=>{
-    assets.push({ label: vidLinks.length>1?`Video ${i+1}`:'Mock Video', url, kind:'video' });
+    const name = getDriveName(S.cols.video, i, vidLinks.length>1?`Video ${i+1}`:'Mock Video');
+    assets.push({ label: name, url, kind:'video' });
   });
   trigLinks.forEach((url,i)=>{
-    assets.push({ label: trigLinks.length>1?`Trigger ${i+1}`:'Trigger Image', url, kind:'image' });
+    const name = getDriveName(S.cols.trigger, i, trigLinks.length>1?`Trigger ${i+1}`:'Trigger Image');
+    assets.push({ label: name, url, kind:'image' });
   });
 
-  _currentAssets    = assets;
-  _currentAssetIdx  = 0;
+  _currentAssets   = assets;
+  _currentAssetIdx = 0;
 
-  // Title & chips
-  document.getElementById('modal-title').textContent = title;
+  // Title + new badge
+  const isNew = isNewThisWeek(row);
+  document.getElementById('modal-title').innerHTML =
+    esc(title) + (isNew ? '<span class="new-badge">✦ New</span>' : '');
+
+  // Chips
   const chips = [
     catRaw ? `<span class="modal-chip">${esc(catRaw)}</span>` : '',
     flamType ? `<span class="modal-chip type">${esc(flamType)}</span>` : ''
   ].filter(Boolean).join('');
   document.getElementById('modal-chips').innerHTML = chips;
 
-  // Action links
+  // Action buttons row (share + export)
+  document.getElementById('modal-actions').innerHTML = `
+    <button class="modal-action-btn" id="share-btn" onclick="shareCard('${esc(title).replace(/'/g,"\'")}')">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="2" r="1.5"/><circle cx="2" cy="6" r="1.5"/><circle cx="9" cy="10" r="1.5"/><path d="M3.5 5.1l4-2.6M3.5 7l4 2.6"/></svg>
+      Copy link
+    </button>
+    <button class="modal-action-btn" onclick="exportCardCSV(_currentRow,'${esc(title).replace(/'/g,"\'")}')">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="1" y="1" width="10" height="10" rx="1.5"/><line x1="4" y1="4" x2="8" y2="4"/><line x1="4" y1="6" x2="8" y2="6"/><line x1="4" y1="8" x2="6" y2="8"/></svg>
+      Export CSV
+    </button>
+    <button class="modal-action-btn" onclick="exportCardPDF(_currentRow,'${esc(title).replace(/'/g,"\'")}','${esc(flamLink)}',${JSON.stringify(trigLinks)},${JSON.stringify(vidLinks)})">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="1" y="1" width="10" height="10" rx="1.5"/><path d="M3 7.5h6M3 5h4"/></svg>
+      Export PDF
+    </button>`;
+
+  // Action links (open in Drive/Flam)
   const linksEl = document.getElementById('modal-links');
   linksEl.innerHTML='';
   if(flamLink){
     const a=document.createElement('a');
-    a.href=flamLink; a.target='_blank'; a.rel='noopener';
-    a.className='link-btn primary';
+    a.href=flamLink; a.target='_blank'; a.rel='noopener'; a.className='link-btn primary';
     a.innerHTML=`<svg width="12" height="12" viewBox="0 0 12 12"><polygon points="2,1 11,6 2,11" fill="currentColor"/></svg> Open Flam Experience`;
     linksEl.appendChild(a);
   }
   trigLinks.forEach((url,i)=>{
     const a=document.createElement('a');
-    a.href=url; a.target='_blank'; a.rel='noopener';
-    a.className='link-btn secondary';
-    a.innerHTML=`<svg width="11" height="11" viewBox="0 0 11 11"><path d="M1 10L10 1M10 1H5M10 1V6"/></svg> ${trigLinks.length>1?`Trigger Image ${i+1}`:'Trigger Image'}`;
+    a.href=url; a.target='_blank'; a.rel='noopener'; a.className='link-btn secondary';
+    const tName = getDriveName(S.cols.trigger, i, trigLinks.length>1?`Trigger Image ${i+1}`:'Trigger Image');
+    a.innerHTML=`<svg width="11" height="11" viewBox="0 0 11 11"><path d="M1 10L10 1M10 1H5M10 1V6"/></svg> ${esc(tName)}`;
     linksEl.appendChild(a);
   });
   vidLinks.forEach((url,i)=>{
     const a=document.createElement('a');
-    a.href=url; a.target='_blank'; a.rel='noopener';
-    a.className='link-btn secondary';
-    a.innerHTML=`<svg width="11" height="11" viewBox="0 0 11 11"><path d="M1 10L10 1M10 1H5M10 1V6"/></svg> ${vidLinks.length>1?`Mock Video ${i+1}`:'Mock Video'}`;
+    a.href=url; a.target='_blank'; a.rel='noopener'; a.className='link-btn secondary';
+    const vName = getDriveName(S.cols.video, i, vidLinks.length>1?`Mock Video ${i+1}`:'Mock Video');
+    a.innerHTML=`<svg width="11" height="11" viewBox="0 0 11 11"><path d="M1 10L10 1M10 1H5M10 1V6"/></svg> ${esc(vName)}`;
     linksEl.appendChild(a);
   });
 
   // Extra metadata
-  const shownCols = new Set([S.cols.title,S.cols.thumb,S.cols.flam,S.cols.flamtype,S.cols.cat,S.cols.trigger,S.cols.video].filter(Boolean));
+  const shownCols = new Set([S.cols.title,S.cols.thumb,S.cols.flam,S.cols.flamtype,S.cols.cat,S.cols.trigger,S.cols.video,'_driveNames'].filter(Boolean));
   const extra = S.headers.filter(h=>!shownCols.has(h)&&row[h]).map(h=>({k:h,v:row[h]}));
   document.getElementById('modal-meta').innerHTML = extra.map(e=>`<div class="meta-item"><div class="mk">${esc(e.k)}</div><div class="mv">${esc(e.v)}</div></div>`).join('');
 
-  // Build player area
-  renderModalPlayer(0);
+  // Update URL without reload
+  const url = new URL(window.location.href);
+  url.searchParams.set('exp', encodeURIComponent(title));
+  history.replaceState(null,'', url.toString());
 
+  renderModalPlayer(0);
   document.getElementById('modal-bg').classList.add('open');
   document.body.style.overflow='hidden';
 }
@@ -1149,12 +1304,22 @@ function renderModalPlayer(idx){
 
   if(previewUrl){
     if(asset.kind==='video'){
-      // Drive video via iframe preview — plays natively
-      playerHTML=`<div class="modal-player"><iframe src="${previewUrl}" allowfullscreen allow="autoplay; encrypted-media"></iframe></div>`;
-    } else {
-      // Drive image via img tag (thumbnail API gives better quality for images)
+      // Show thumbnail poster behind iframe — hides the Drive player loading stretch
       const tid = driveId(asset.url);
-      playerHTML=`<div class="modal-player"><img src="https://drive.google.com/thumbnail?id=${tid}&sz=w1200" alt="" onerror="this.src='${previewUrl}'"></div>`;
+      const posterUrl = tid ? `https://drive.google.com/thumbnail?id=${tid}&sz=w800` : '';
+      playerHTML=`<div class="modal-player" id="modal-player-el">
+        ${posterUrl ? `<div class="video-poster">
+          <img src="${posterUrl}" alt="">
+          <div class="play-ring-lg"><svg viewBox="0 0 18 18"><polygon points="3,2 16,9 3,16"/></svg></div>
+        </div>` : ''}
+        <iframe src="${previewUrl}" allowfullscreen allow="autoplay; encrypted-media"
+          onload="document.getElementById('modal-player-el')?.classList.add('ready')">
+        </iframe>
+      </div>`;
+    } else {
+      // Drive image — high-res thumbnail, contain so it never stretches
+      const tid = driveId(asset.url);
+      playerHTML=`<div class="modal-player"><img src="https://drive.google.com/thumbnail?id=${tid}&sz=w1600" alt="" onerror="this.src='${previewUrl}'"></div>`;
     }
   } else {
     playerHTML=`<div class="modal-player"><div class="no-embed"><div class="no-embed-icon">${asset.kind==='image'?'🖼':'▶'}</div><div>Can't preview directly</div><a class="link-btn primary" href="${esc(asset.url)}" target="_blank" style="text-decoration:none;margin-top:4px">Open in Drive ↗</a></div></div>`;
@@ -1173,6 +1338,11 @@ function closeModal(){
   document.getElementById('modal-player-wrap').innerHTML='';
   document.body.style.overflow='';
   _currentAssets=[];
+  _currentRow=null;
+  // Remove deep link param from URL
+  const url = new URL(window.location.href);
+  url.searchParams.delete('exp');
+  history.replaceState(null,'', url.toString());
 }
 
 document.getElementById('modal-close').addEventListener('click',closeModal);
