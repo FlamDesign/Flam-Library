@@ -422,8 +422,7 @@ button,select{font-family:var(--font-b)}
 }
 </style>
 </head>
-<!-- jsPDF for direct PDF download -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <body>
 
 <!-- ══ SETUP ══════════════════════════════════════════ -->
@@ -1127,148 +1126,108 @@ function exportCardCSV(row, title){
 }
 
 // ── EXPORT PDF (print-friendly page) ──
-function exportCardPDF(row, title, flamLink, trigLinks, vidLinks){
-  // Guard — jsPDF loaded from CDN
-  if (!window.jspdf || !window.jspdf.jsPDF) {
-    showToast('PDF library still loading — try again in a second');
-    return;
-  }
+// ── COPY CARD TO CLIPBOARD ──
+function copyCardToClipboard(){
+  if(!_currentRow) return;
+  const row  = _currentRow;
+  const cols = S.cols;
 
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const title     = cv(row, cols.title) || 'Experience';
+  const flamLink  = cv(row, cols.flam);
+  const catRaw    = cv(row, cols.cat);
+  const flamType  = cv(row, cols.flamtype);
+  const trigLinks = parseDriveLinks(cv(row, cols.trigger));
+  const vidLinks  = parseDriveLinks(cv(row, cols.video));
 
-  const PAGE_W   = 210;
-  const MARGIN   = 18;
-  const COL_W    = 48;   // label column width
-  const TEXT_W   = PAGE_W - MARGIN * 2 - COL_W; // value column width
-  const LINE_H   = 6;
-  const ACCENT   = [232, 75, 26];   // #e84b1a
-  const DARK     = [24, 18, 14];    // --ink
-  const MUTED    = [120, 110, 105];
-  const RULE     = [230, 226, 218];
+  // Drive filenames
+  let driveNames = {};
+  try { driveNames = JSON.parse(row['_driveNames'] || '{}'); } catch(e){}
+  const dn = (col, idx, fallback) => {
+    const n = driveNames[col]; return (n && n[idx]) ? n[idx] : fallback;
+  };
 
-  let y = MARGIN;
+  // Skip columns already shown in the structured section
+  const coreCols = new Set([cols.title, cols.flam, cols.flamtype, cols.cat, cols.trigger, cols.video, cols.thumb, '_driveNames'].filter(Boolean));
 
-  // ── HEADER ──
-  doc.setFillColor(...ACCENT);
-  doc.rect(MARGIN, y, 6, 6, 'F');
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
-  doc.setTextColor(...ACCENT);
-  doc.text('FLAM LIBRARY', MARGIN + 9, y + 4.5);
+  // Extra fields (anything not already in core)
+  const extras = S.headers.filter(h => row[h] && !coreCols.has(h));
 
-  y += 12;
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(18);
-  doc.setTextColor(...DARK);
-  // Wrap long titles
-  const titleLines = doc.splitTextToSize(title, PAGE_W - MARGIN * 2);
-  doc.text(titleLines, MARGIN, y);
-  y += titleLines.length * 7 + 2;
+  // ── BUILD SLACK-FRIENDLY TEXT ──
+  const lines = [];
 
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
-  doc.setTextColor(...MUTED);
-  doc.text('Exported ' + new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}), MARGIN, y);
-  y += 3;
+  // Title — bold in Slack
+  lines.push(`*${title}*`);
 
-  // Rule under header
-  doc.setDrawColor(...RULE);
-  doc.setLineWidth(0.4);
-  doc.line(MARGIN, y + 2, PAGE_W - MARGIN, y + 2);
-  y += 8;
+  // Key metadata as compact pills line
+  const meta = [catRaw, flamType].filter(Boolean).join('  ·  ');
+  if(meta) lines.push(meta);
 
-  // ── FIELDS TABLE ──
-  doc.setFontSize(8);
-  const fields = S.headers.filter(h => row[h] && h !== '_driveNames');
+  lines.push('');
 
-  fields.forEach((h, i) => {
-    const val = row[h];
-    const labelLines = doc.splitTextToSize(h.toUpperCase(), COL_W - 4);
-    const valueLines = doc.splitTextToSize(val, TEXT_W);
-    const rowH = Math.max(labelLines.length, valueLines.length) * LINE_H + 3;
-
-    // Zebra stripe
-    if (i % 2 === 0) {
-      doc.setFillColor(248, 246, 244);
-      doc.rect(MARGIN, y - 1, PAGE_W - MARGIN * 2, rowH, 'F');
-    }
-
-    // Label
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(...MUTED);
-    doc.text(labelLines, MARGIN + 2, y + 3.5);
-
-    // Value
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(...DARK);
-    doc.text(valueLines, MARGIN + COL_W, y + 3.5);
-
-    y += rowH;
-
-    // Page break guard
-    if (y > 270) {
-      doc.addPage();
-      y = MARGIN;
-    }
-  });
-
-  // ── LINKS SECTION ──
-  const allLinks = [
-    flamLink ? { label: 'Flam Experience', url: flamLink, accent: true } : null,
-    ...trigLinks.map((u, i) => ({ label: 'Trigger Image' + (trigLinks.length > 1 ? ' ' + (i+1) : ''), url: u })),
-    ...vidLinks.map((u, i)  => ({ label: 'Mock Video'    + (vidLinks.length  > 1 ? ' ' + (i+1) : ''), url: u }))
-  ].filter(Boolean);
-
-  if (allLinks.length) {
-    y += 4;
-    doc.setDrawColor(...RULE);
-    doc.line(MARGIN, y, PAGE_W - MARGIN, y);
-    y += 6;
-
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8);
-    doc.setTextColor(...MUTED);
-    doc.text('LINKS & ASSETS', MARGIN, y);
-    y += 6;
-
-    allLinks.forEach(({ label, url, accent }) => {
-      if (y > 270) { doc.addPage(); y = MARGIN; }
-
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(8);
-      doc.setTextColor(accent ? ACCENT[0] : DARK[0], accent ? ACCENT[1] : DARK[1], accent ? ACCENT[2] : DARK[2]);
-      doc.text(label, MARGIN, y);
-
-      y += 4.5;
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(7);
-      doc.setTextColor(100, 100, 100);
-      const urlLines = doc.splitTextToSize(url, PAGE_W - MARGIN * 2);
-      doc.textWithLink(urlLines[0], MARGIN, y, { url });
-      if (urlLines.length > 1) {
-        y += 4;
-        doc.text(urlLines.slice(1).join(''), MARGIN, y);
-      }
-      y += 6;
+  // Extra fields as a tidy table
+  if(extras.length){
+    extras.forEach(h => {
+      const label = h.padEnd(20);
+      lines.push(`${label}${row[h]}`);
     });
+    lines.push('');
   }
 
-  // ── FOOTER ──
-  const pageCount = doc.getNumberOfPages();
-  for (let p = 1; p <= pageCount; p++) {
-    doc.setPage(p);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7);
-    doc.setTextColor(...MUTED);
-    doc.text('Flam Library Export', MARGIN, 292);
-    doc.text('Page ' + p + ' of ' + pageCount, PAGE_W - MARGIN, 292, { align: 'right' });
+  // Links block
+  const hasLinks = flamLink || trigLinks.length || vidLinks.length;
+  if(hasLinks){
+    lines.push('*Links & Assets*');
+    if(flamLink){
+      lines.push(`▶  Flam Experience`);
+      lines.push(`   ${flamLink}`);
+    }
+    trigLinks.forEach((u,i)=>{
+      const name = dn(cols.trigger, i, 'Trigger Image' + (trigLinks.length>1 ? ` ${i+1}` : ''));
+      lines.push(`🖼  ${name}`);
+      lines.push(`   ${u}`);
+    });
+    vidLinks.forEach((u,i)=>{
+      const name = dn(cols.video, i, 'Mock Video' + (vidLinks.length>1 ? ` ${i+1}` : ''));
+      lines.push(`🎬  ${name}`);
+      lines.push(`   ${u}`);
+    });
+    lines.push('');
   }
 
-  // ── SAVE ──
-  const safeTitle = (title || 'experience').replace(/[^a-z0-9]/gi, '_');
-  doc.save(safeTitle + '.pdf');
-  showToast('PDF downloaded ✓');
+  // Footer
+  lines.push(`_Shared from Flam Library_`);
+
+  const text = lines.join('\n');
+
+  // Copy with graceful fallback for non-HTTPS contexts
+  const doConfirm = () => {
+    showToast('Copied to clipboard ✓');
+    const btn = document.getElementById('copy-card-btn');
+    if(btn){
+      btn.classList.add('copied');
+      const orig = btn.innerHTML;
+      btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.7"><polyline points="1,6 4,9 11,2"/></svg> Copied!`;
+      setTimeout(()=>{ btn.classList.remove('copied'); btn.innerHTML = orig; }, 2400);
+    }
+  };
+
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(doConfirm).catch(()=>{
+      legacyCopy(text); doConfirm();
+    });
+  } else {
+    legacyCopy(text); doConfirm();
+  }
+}
+
+function legacyCopy(text){
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0;pointer-events:none';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { document.execCommand('copy'); } catch(e){}
+  document.body.removeChild(ta);
 }
 
 // ── SHARE LINK ──
@@ -1350,13 +1309,13 @@ function openModal({ row, title, flamLink, flamType, catRaw, tags, trigLinks, vi
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="2" r="1.5"/><circle cx="2" cy="6" r="1.5"/><circle cx="9" cy="10" r="1.5"/><path d="M3.5 5.1l4-2.6M3.5 7l4 2.6"/></svg>
       Copy link
     </button>
-    <button class="modal-action-btn" onclick="exportCardCSV(_currentRow,'${esc(title).replace(/'/g,"\'")}')">
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="1" y="1" width="10" height="10" rx="1.5"/><line x1="4" y1="4" x2="8" y2="4"/><line x1="4" y1="6" x2="8" y2="6"/><line x1="4" y1="8" x2="6" y2="8"/></svg>
-      Export CSV
+    <button class="modal-action-btn" id="copy-card-btn" onclick="copyCardToClipboard()">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="1" width="7" height="9" rx="1.2"/><path d="M1 3.5v7A1.2 1.2 0 0 0 2.2 11.7H8"/></svg>
+      Copy to clipboard
     </button>
-    <button class="modal-action-btn" onclick="exportCardPDF(_currentRow,'${esc(title).replace(/'/g,"\'")}','${esc(flamLink)}',${JSON.stringify(trigLinks)},${JSON.stringify(vidLinks)})">
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="1" y="1" width="10" height="10" rx="1.5"/><path d="M3 7.5h6M3 5h4"/></svg>
-      Export PDF
+    <button class="modal-action-btn" onclick="exportCardCSV(_currentRow,'${esc(title).replace(/'/g,"\'")}')">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 1v7M3 5l3 3 3-3M1 10h10"/></svg>
+      Export CSV
     </button>`;
 
   // Action links (open in Drive/Flam)
