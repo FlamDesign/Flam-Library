@@ -422,55 +422,61 @@ button,select{font-family:var(--font-b)}
   .grid.list .c-thumb{width:108px;height:72px}
   .grid.list .c-title{font-size:13px}
 
-  /* ── MODAL MOBILE: slides up, video on top, info scrolls below ── */
+  /* ── MODAL MOBILE ──
+     iPhone aspect ratio: 390×844 (19.5:9)
+     Modal = bottom sheet, max 78vh so top 22vh is always visible/tappable to close
+     Video = 56vw tall (16:9 at full width = 56.25vw) — fits perfectly
+     Info  = remaining height, scrollable
+  ── */
   .modal-bg{
-    padding:0;align-items:flex-end;
-    /* smooth fade in from bottom */
+    padding:0;
+    align-items:flex-end;
+    overscroll-behavior:none;
   }
+
+  /* Tap the dark area above sheet to close */
+  .modal-bg::before{
+    content:'';
+    display:block;
+    position:fixed;inset:0;
+    z-index:-1;
+  }
+
   .modal{
-    flex-direction:column;           /* player-panel first = top, info second = bottom */
-    border-radius:22px 22px 0 0;
+    flex-direction:column;
+    border-radius:20px 20px 0 0;
     width:100%;max-width:100%;
-    height:91vh;max-height:91vh;
-    /* smooth slide up */
-    animation:mobile-modal-in .3s cubic-bezier(.22,.68,0,1.05);
+    /* 78vh: ~658px on iPhone 14 — video(219px) + info(439px) — always fits */
+    height:78vh;max-height:78vh;min-height:0;
+    animation:mob-slide-up .28s cubic-bezier(.32,.72,0,1);
+    will-change:transform;
   }
-  @keyframes mobile-modal-in{
-    from{transform:translateY(100%);opacity:0}
-    to{transform:translateY(0);opacity:1}
+  @keyframes mob-slide-up{
+    from{transform:translateY(100%)}
+    to{transform:translateY(0)}
   }
 
-  /* Player on top — fixed height, use order to override DOM order */
+  /* ── VIDEO PANEL — top, exactly 16:9 of screen width ── */
   #modal-player-wrap{
-    order:1;                         /* player renders FIRST (top) */
+    order:1;
     width:100%!important;
+    /* 56.25vw = perfect 16:9 for 100vw wide video */
+    height:56.25vw;
+    min-height:180px;
+    max-height:38vh;   /* cap so info always has room */
     flex-shrink:0;
-    height:56vw;min-height:210px;max-height:48vh;
-    border-radius:22px 22px 0 0;
-    display:flex!important;flex-direction:column!important;
+    border-radius:20px 20px 0 0;
+    display:flex!important;
+    flex-direction:column!important;
     overflow:hidden;
+    background:#0e0e0e;
   }
-  .modal-info{
-    order:2;                         /* info renders SECOND (bottom) */
-  }
-  .modal-player-panel{
-    border-radius:22px 22px 0 0;
-  }
-  .asset-tabs{
-    background:rgba(0,0,0,.5);
-    padding:0 14px;
-  }
+  .asset-tabs{background:rgba(0,0,0,.55);padding:0 12px}
+  .asset-tab{padding:8px 11px;font-size:11.5px}
 
-  /* Drag handle — shows users they can scroll */
-  .modal-info::before{
-    content:'';display:block;
-    width:36px;height:4px;border-radius:2px;
-    background:var(--rule2);
-    margin:10px auto 0;flex-shrink:0;
-  }
-
-  /* Info panel scrolls */
+  /* ── INFO PANEL — bottom, scrollable ── */
   .modal-info{
+    order:2;
     width:100%!important;
     flex:1;min-height:0;
     border-right:none;
@@ -481,33 +487,52 @@ button,select{font-family:var(--font-b)}
   }
   .modal-info::-webkit-scrollbar{display:none}
 
+  /* Drag handle pill at very top of info panel */
+  .modal-info::before{
+    content:'';display:block;
+    width:32px;height:4px;border-radius:2px;
+    background:var(--rule2);
+    margin:10px auto 6px;
+  }
+
   .modal-info-head{
-    padding:8px 18px 14px;
+    padding:4px 18px 12px;
     border-bottom:1px solid var(--rule);
   }
-  .modal-info-body{padding:14px 18px calc(env(safe-area-inset-bottom,0px) + 28px)}
-
-  .modal-title{font-size:18px;margin-bottom:8px}
-  .modal-chips{margin-bottom:10px;gap:5px}
-  .modal-chip{font-size:11px;padding:3px 9px}
-  .modal-actions{gap:6px;flex-wrap:wrap}
-  .modal-action-btn{height:30px;padding:0 11px;font-size:11.5px}
-
-  .modal-links{gap:7px;margin-bottom:14px}
-  .link-btn{height:38px;font-size:13px;border-radius:10px}
-
-  /* Close button — sits on top-right of video */
-  .close-btn{
-    top:12px;right:12px;
-    background:rgba(0,0,0,.45);
-    border-color:rgba(255,255,255,.25);
-    color:rgba(255,255,255,.85);
-    backdrop-filter:blur(8px);
+  .modal-info-body{
+    padding:12px 18px calc(env(safe-area-inset-bottom,16px) + 20px);
   }
-  .close-btn:hover{background:rgba(0,0,0,.65);color:white;border-color:rgba(255,255,255,.5)}
 
-  .modal-meta-section{padding-top:12px}
+  /* ── CLOSE BUTTON ──
+     Moved OUT of the video, sits in info head top-right
+     Always visible, easy thumb tap
+  ── */
+  .close-btn{
+    /* Override absolute positioning — flow inside info head */
+    position:absolute;
+    top:10px;right:14px;
+    width:32px;height:32px;
+    border-radius:8px;
+    background:var(--wash);
+    border:1px solid var(--rule2);
+    color:var(--ink2);
+    z-index:20;
+  }
+  .close-btn:hover,.close-btn:active{
+    background:var(--ink);color:white;border-color:var(--ink);
+  }
+
+  /* Compact text */
+  .modal-title{font-size:17px;margin-bottom:7px}
+  .modal-chips{margin-bottom:8px;gap:4px}
+  .modal-chip{font-size:10.5px;padding:2px 8px}
+  .modal-actions{gap:5px;margin-bottom:0}
+  .modal-action-btn{height:28px;padding:0 10px;font-size:11px}
+  .modal-links{gap:6px;margin-bottom:12px}
+  .link-btn{height:36px;font-size:12.5px;border-radius:9px}
+  .modal-meta-section{padding-top:10px}
   .meta-item .mk{font-size:9.5px}
+  .meta-item .mv{font-size:12px}
   .meta-item .mv{font-size:12.5px}
 
   /* Settings panel — slides up full width */
@@ -1580,6 +1605,21 @@ function closeModal(){
 
 document.getElementById('modal-close').addEventListener('click',closeModal);
 document.getElementById('modal-bg').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeModal(); });
+
+// Swipe down on the info panel handle area or video to close on mobile
+let _mTouchY = 0;
+const _modalEl = document.getElementById('modal');
+if(_modalEl){
+  _modalEl.addEventListener('touchstart', e=>{
+    _mTouchY = e.touches[0].clientY;
+  }, {passive:true});
+  _modalEl.addEventListener('touchmove', e=>{
+    // Only close if swiping down from the very top (drag handle area)
+    const dy = e.touches[0].clientY - _mTouchY;
+    const isTopOfPanel = e.touches[0].clientY < (_modalEl.getBoundingClientRect().top + 60);
+    if(dy > 80 && isTopOfPanel) closeModal();
+  }, {passive:true});
+}
 
 // ══════════════════════════════════════════════════
 //  SETTINGS PANEL
