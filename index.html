@@ -307,6 +307,7 @@ button,select{font-family:var(--font-b)}
   overflow:hidden;background:#0e0e0e;min-height:0;
 }
 .modal-player iframe{position:absolute;inset:0;width:100%;height:100%;border:none;display:block;z-index:2}
+.modal-player video{width:100%;height:100%;object-fit:contain;display:block;background:#000;max-height:100%}
 .modal-player img{width:100%;height:100%;object-fit:contain;display:block;background:#0e0e0e}
 .modal-player .video-poster{position:absolute;inset:0;background:#0e0e0e;display:flex;align-items:center;justify-content:center;z-index:1;transition:opacity .3s}
 .modal-player .video-poster img{width:100%;height:100%;object-fit:cover;opacity:.4}
@@ -540,49 +541,39 @@ button,select{font-family:var(--font-b)}
   .asset-tab{padding:9px 12px;font-size:12px}
 
   /* ── MOBILE ACTION BAR ──
-     Sits between video and info panel — keeps Drive player controls unobstructed
+     Sits at top of info panel — Drive player plays cleanly above, no overlap
   ── */
-  .mob-video-bar{
-    display:none; /* shown only on mobile via JS */
+  .mob-video-bar{display:none!important} /* never overlay Drive player */
+  .mob-action-bar{
+    display:flex;align-items:center;gap:8px;
+    padding:10px 14px 10px;
     flex-shrink:0;
-    align-items:center;justify-content:space-between;
-    padding:10px 16px;
-    background:#111;
-    border-top:0.5px solid rgba(255,255,255,.08);
-    border-bottom:0.5px solid rgba(255,255,255,.08);
-    order:15; /* between player (order:1) and info (order:2→20) */
-    width:100%;
-    z-index:5;
+    border-bottom:1px solid var(--rule);
+    background:#1a1a1a;
   }
   .mob-open-flam{
-    display:flex;align-items:center;gap:7px;
-    background:var(--flame);
-    border:none;border-radius:20px;
-    padding:9px 16px;
-    font-family:var(--font-b);font-size:13px;font-weight:600;
-    color:white;cursor:pointer;
+    flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
+    background:var(--flame);border:none;border-radius:10px;height:42px;
+    font-family:var(--font-b);font-size:13px;font-weight:600;color:white;
+    cursor:pointer;-webkit-tap-highlight-color:transparent;
     transition:background .15s,transform .12s;
-    -webkit-tap-highlight-color:transparent;
   }
-  .mob-open-flam:active{background:#c93d12;transform:scale(.97)}
-  .mob-icon-btns{display:flex;gap:8px;align-items:center}
+  .mob-open-flam:active{background:#c93d12;transform:scale(.98)}
   .mob-icon-btn{
-    width:36px;height:36px;border-radius:50%;
-    background:rgba(255,255,255,.14);
-    border:0.5px solid rgba(255,255,255,.2);
+    width:42px;height:42px;flex-shrink:0;border-radius:10px;
+    background:rgba(255,255,255,.07);border:0.5px solid var(--rule2);
     display:flex;align-items:center;justify-content:center;
-    cursor:pointer;
-    -webkit-tap-highlight-color:transparent;
+    cursor:pointer;-webkit-tap-highlight-color:transparent;
     transition:background .15s,transform .12s;
   }
-  .mob-icon-btn:active{background:rgba(255,255,255,.28);transform:scale(.94)}
-  .mob-icon-btn svg{stroke:rgba(255,255,255,.9);fill:none;stroke-width:1.8}
+  .mob-icon-btn:active{background:rgba(255,255,255,.18);transform:scale(.95)}
+  .mob-icon-btn svg{stroke:var(--ink);fill:none;stroke-width:1.8}
 
   /* ── INFO PANEL — 30%, compact + scrollable ── */
   .modal-info{
     order:20; /* after bar (order:15) */
     width:100%!important;
-    flex:0 0 30%!important;
+    flex:0 0 38%!important; /* slightly more room for action bar */
     min-height:0;
     border-right:none;
     border-top:1px solid var(--rule);
@@ -1863,10 +1854,30 @@ function renderModalPlayer(idx){
   const previewUrl = drivePreview(asset.url);
   let playerHTML='';
 
-  if(previewUrl){
-    if(asset.kind==='video'){
-      // Show thumbnail poster behind iframe — hides the Drive player loading stretch
-      const tid = driveId(asset.url);
+  const isMobile = window.innerWidth <= 768;
+  const tid = driveId(asset.url);
+
+  if(asset.kind==='video' && tid){
+    if(isMobile){
+      // Mobile: use native <video> tag — clean iOS controls, no Drive UI overlay
+      // Drive direct-download URL streams video natively on iOS
+      // Drive streaming URL for native <video> — works on iOS Safari/Chrome
+      // The preview URL can also be used as video src on some files
+      const directUrl = `https://drive.google.com/uc?export=download&id=${tid}&confirm=t`;
+      const posterUrl = `https://drive.google.com/thumbnail?id=${tid}&sz=w800`;
+      playerHTML=`<div class="modal-player" id="modal-player-el" style="background:#000">
+        <video
+          src="${directUrl}"
+          poster="${posterUrl}"
+          controls
+          playsinline
+          preload="metadata"
+          style="width:100%;height:100%;object-fit:contain;display:block;background:#000"
+        ></video>
+      </div>`;
+    } else {
+      // Desktop: Drive iframe works fine
+      const previewUrl = drivePreview(asset.url);
       const posterUrl = tid ? `https://drive.google.com/thumbnail?id=${tid}&sz=w800` : '';
       playerHTML=`<div class="modal-player" id="modal-player-el">
         ${posterUrl ? `<div class="video-poster">
@@ -1877,11 +1888,10 @@ function renderModalPlayer(idx){
           onload="document.getElementById('modal-player-el')?.classList.add('ready')">
         </iframe>
       </div>`;
-    } else {
-      // Drive image — high-res thumbnail, contain so it never stretches
-      const tid = driveId(asset.url);
-      playerHTML=`<div class="modal-player"><img src="https://drive.google.com/thumbnail?id=${tid}&sz=w1600" alt="" onerror="this.src='${previewUrl}'"></div>`;
     }
+  } else if(asset.kind==='image' && tid){
+    const previewUrl = drivePreview(asset.url);
+    playerHTML=`<div class="modal-player"><img src="https://drive.google.com/thumbnail?id=${tid}&sz=w1600" alt="" onerror="this.src='${previewUrl}'"></div>`;
   } else {
     playerHTML=`<div class="modal-player"><div class="no-embed"><div class="no-embed-icon">${asset.kind==='image'?'🖼':'▶'}</div><div>Can't preview directly</div><a class="link-btn primary" href="${esc(asset.url)}" target="_blank" style="text-decoration:none;margin-top:4px">Open in Drive ↗</a></div></div>`;
   }
@@ -1900,17 +1910,16 @@ function renderModalPlayer(idx){
 }
 
 function injectMobileVideoBar(){
-  // Remove existing bar if any
-  document.getElementById('mob-video-bar')?.remove();
+  // Remove existing bar if re-rendering
+  document.getElementById('mob-action-bar')?.remove();
 
-  // Bar goes on the modal itself (between player and info), not inside the player
-  const modal = document.getElementById('modal');
-  if(!modal) return;
+  // Inject at top of info panel — video plays cleanly above with native controls
+  const info = document.getElementById('modal-info');
+  if(!info) return;
 
   const bar = document.createElement('div');
-  bar.id  = 'mob-video-bar';
-  bar.className = 'mob-video-bar';
-  bar.style.display = 'flex'; // override display:none from CSS
+  bar.id  = 'mob-action-bar';
+  bar.className = 'mob-action-bar';
 
   const flamLink = window._modalFlamLink || '';
 
@@ -1931,10 +1940,8 @@ function injectMobileVideoBar(){
       </button>
     </div>`;
 
-  // Insert after the player wrap, before modal-info
-  const modalInfo = modal.querySelector('.modal-info');
-  if(modalInfo) modal.insertBefore(bar, modalInfo);
-  else modal.appendChild(bar);
+  // Insert as first child of info panel
+  info.insertBefore(bar, info.firstChild);
 
   // Open Flam
   const openBtn = document.getElementById('mob-open-flam');
@@ -1985,7 +1992,7 @@ document.getElementById('modal-bg').addEventListener('click',e=>{ if(e.target===
 window.addEventListener('resize', ()=>{
   if(document.getElementById('modal-bg')?.classList.contains('open')){
     if(window.innerWidth <= 768) injectMobileVideoBar();
-    else document.getElementById('mob-video-bar')?.remove();
+    else document.getElementById('mob-action-bar')?.remove();
   }
 });
 
