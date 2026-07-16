@@ -1027,24 +1027,40 @@ function parseAPIResponse(text) {
 
 // ── GVIZ (Google Visualization API) — works on ALL browsers including iOS ──
 // docs.google.com is never blocked by ITP. This is our primary data source.
-const GVIZ_URL = 'https://docs.google.com/spreadsheets/d/1MouoP7ySmGjO_yq-LvsM6gYcBoRjOiTEQ5w3FZKI7js/gviz/tq?tqx=out:json&gid=0';
+// headers=1 tells gviz row 1 is the header row so labels come back correctly
+const GVIZ_URL = 'https://docs.google.com/spreadsheets/d/1MouoP7ySmGjO_yq-LvsM6gYcBoRjOiTEQ5w3FZKI7js/gviz/tq?tqx=out:json&gid=0&headers=1';
 
 function parseGviz(text) {
-  // gviz wraps JSON in: /*O_o*/ google.visualization.Query.setResponse({...});
-  const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
+  // Strip the /*O_o*/ wrapper: google.visualization.Query.setResponse({...});
+  const match = text.match(/setResponse\(([\s\S]*)\)\s*;?\s*$/);
   if (!match) throw new Error('Unexpected gviz format');
   const data = JSON.parse(match[1]);
   if (data.status === 'error') throw new Error(data.errors?.[0]?.detailed_message || 'gviz error');
   const t = data.table;
-  const headers = t.cols.map(c => (c.label || c.id || '').trim()).filter(Boolean);
+
+  // Column labels — gviz gives proper labels when headers=1 is set
+  // Filter out columns with single-letter IDs (empty gviz placeholder columns like I,J,K...Z)
+  const headers = t.cols.map(c => (c.label || '').trim()).filter(h => h.length > 1);
+  if (!headers.length) throw new Error('No headers returned from gviz');
+
   const rows = t.rows.map(r => {
     const obj = {};
     headers.forEach((h, i) => {
       const cell = r.c?.[i];
-      obj[h] = cell?.v != null ? String(cell.v).trim() : (cell?.f || '');
+      if (!cell || cell.v == null) { obj[h] = ''; return; }
+      // Use formatted value (f) for dates/numbers, raw value (v) for strings
+      if (typeof cell.v === 'string') {
+        obj[h] = cell.v.trim();
+      } else if (cell.f) {
+        // Formatted value — e.g. "8-Mar-2026" for a date
+        obj[h] = cell.f.trim();
+      } else {
+        obj[h] = String(cell.v).trim();
+      }
     });
     return obj;
   }).filter(r => Object.values(r).some(v => v));
+
   return { headers, rows };
 }
 
