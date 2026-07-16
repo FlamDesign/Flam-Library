@@ -9,16 +9,17 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --ink:#18120e;--ink2:#5c4f47;--ink3:#a8998f;
-  --paper:#faf8f5;--surface:#fff;--wash:#f2ede7;--rule:#e8e2da;--rule2:#d6cec4;
-  --flame:#e84b1a;--flame-bg:#fef3ee;
-  --green:#1a7a4a;--green-bg:#eaf5ef;
+  /* ── Dark Netflix-inspired theme ── */
+  --ink:#e8e6e3;--ink2:#a8a49f;--ink3:#6b6760;
+  --paper:#141414;--surface:#1f1f1f;--wash:#2a2a2a;--rule:#2e2e2e;--rule2:#3a3a3a;
+  --flame:#e84b1a;--flame-bg:rgba(232,75,26,.15);
+  --green:#2ecc71;--green-bg:rgba(46,204,113,.12);
   --font-d:'DM Serif Display',Georgia,serif;
   --font-b:'DM Sans',sans-serif;
-  --r:12px;
-  --sh-s:0 1px 2px rgba(24,18,14,.04),0 2px 8px rgba(24,18,14,.06);
-  --sh-m:0 4px 20px rgba(24,18,14,.1);
-  --sh-l:0 16px 56px rgba(24,18,14,.15);
+  --r:10px;
+  --sh-s:0 2px 8px rgba(0,0,0,.4);
+  --sh-m:0 6px 24px rgba(0,0,0,.5);
+  --sh-l:0 20px 60px rgba(0,0,0,.7);
 }
 html{font-size:15px}
 body{font-family:var(--font-b);background:var(--paper);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
@@ -31,7 +32,8 @@ button,select{font-family:var(--font-b)}
 .topbar{
   position:sticky;top:0;z-index:200;height:56px;padding:0 28px;
   display:flex;align-items:center;gap:18px;
-  background:rgba(250,248,245,.92);backdrop-filter:blur(16px);
+  background:linear-gradient(180deg,rgba(20,20,20,.98) 0%,rgba(20,20,20,.85) 100%);
+  backdrop-filter:blur(16px);
   border-bottom:1px solid var(--rule);
 }
 .brand{display:flex;align-items:center;gap:9px;text-decoration:none;flex-shrink:0}
@@ -69,7 +71,7 @@ button,select{font-family:var(--font-b)}
 /* ── SIDEBAR ── */
 .sidebar{
   width:214px;flex-shrink:0;padding:22px 14px 32px;
-  background:var(--surface);border-right:1px solid var(--rule);
+  background:#181818;border-right:1px solid var(--rule);
   position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto;
 }
 .sidebar::-webkit-scrollbar{width:0}
@@ -102,8 +104,8 @@ button,select{font-family:var(--font-b)}
 .grid.list{grid-template-columns:1fr;gap:8px}
 
 /* ── CARD ── */
-.card{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:transform .22s cubic-bezier(.22,.68,0,1.2),box-shadow .22s,border-color .2s;animation:rise .28s ease both}
-.card:hover{transform:translateY(-2px);box-shadow:var(--sh-m);border-color:var(--rule2)}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:transform .25s cubic-bezier(.22,.68,0,1.2),box-shadow .25s,border-color .2s;animation:rise .28s ease both}
+.card:hover{transform:scale(1.06);box-shadow:0 12px 40px rgba(0,0,0,.7);border-color:rgba(255,255,255,.15);z-index:2;position:relative}
 @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
 .c-thumb{position:relative;aspect-ratio:16/9;background:var(--wash);overflow:hidden}
@@ -140,6 +142,63 @@ button,select{font-family:var(--font-b)}
 .grid.list .c-tags,.grid.list .type-badge{display:none}
 .grid.list .c-foot{border:none;padding:0;flex-shrink:0}
 .grid.list .c-src{display:none}
+/* ── RECENTLY ADDED ROW (Netflix-style) ── */
+.recent-section{padding:0 0 28px}
+.recent-heading{
+  font-family:var(--font-d);font-size:20px;color:var(--ink);
+  margin-bottom:14px;display:flex;align-items:center;gap:10px;
+}
+.recent-heading .rh-badge{
+  font-family:var(--font-b);font-size:10px;font-weight:700;
+  letter-spacing:.8px;text-transform:uppercase;
+  background:var(--flame);color:white;
+  padding:2px 8px;border-radius:4px;vertical-align:middle;
+}
+.recent-row{
+  display:flex;gap:12px;
+  overflow-x:auto;
+  padding-bottom:10px;
+  scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  /* Negative margin trick to allow hover scale to overflow */
+  padding-top:16px;margin-top:-16px;
+  padding-left:2px;margin-left:-2px;
+}
+.recent-row::-webkit-scrollbar{display:none}
+.recent-card{
+  flex-shrink:0;width:220px;
+  background:var(--surface);border:1px solid var(--rule);
+  border-radius:var(--r);overflow:visible;cursor:pointer;
+  scroll-snap-align:start;
+  transition:transform .25s cubic-bezier(.22,.68,0,1.2),box-shadow .25s,border-color .2s;
+  position:relative;
+}
+.recent-card:hover{
+  transform:scale(1.08);
+  box-shadow:0 14px 44px rgba(0,0,0,.8);
+  border-color:rgba(255,255,255,.2);
+  z-index:5;
+}
+.recent-card .c-thumb{border-radius:var(--r) var(--r) 0 0;overflow:hidden}
+.recent-card:hover .c-thumb img{transform:scale(1.04)}
+.recent-card .c-body{padding:10px 12px 12px}
+.recent-card .c-title{font-size:12.5px;-webkit-line-clamp:1;margin-bottom:5px}
+.recent-card .c-tags{margin-bottom:0}
+.recent-card .c-foot{padding-top:8px}
+.recent-card .c-src{font-size:10.5px}
+.recent-date{
+  font-size:10px;color:var(--flame);font-weight:600;
+  letter-spacing:.3px;margin-bottom:3px;
+}
+
+/* main grid section heading */
+.all-heading{
+  font-family:var(--font-d);font-size:20px;color:var(--ink);
+  margin-bottom:16px;
+}
+.section-divider{height:1px;background:var(--rule);margin:0 0 24px}
+
 
 /* ── STATE WRAPPERS ── */
 .state-box{grid-column:1/-1;min-height:300px;display:flex;align-items:center;justify-content:center;padding:48px}
@@ -657,6 +716,17 @@ button,select{font-family:var(--font-b)}
     </aside>
 
     <main class="main">
+
+      <!-- Recently Added row -->
+      <div class="recent-section" id="recent-section" style="display:none">
+        <div class="recent-heading">
+          Recently Added <span class="rh-badge">New</span>
+        </div>
+        <div class="recent-row" id="recent-row"></div>
+        <div class="section-divider"></div>
+      </div>
+
+      <!-- All experiences -->
       <div class="toolbar">
         <select class="sort-sel" id="sort">
           <option value="">Default order</option>
@@ -879,6 +949,7 @@ function ingest(headers, rows){
   buildMobileFilters();
   buildFilterSheet();
   populateColSelects();
+  renderRecentRow();
   renderAll();
   document.getElementById('setup').style.display = 'none';
   document.getElementById('app').style.display   = '';
@@ -1178,6 +1249,96 @@ function fillFilter(elId, key, counts){
 // ══════════════════════════════════════════════════
 //  RENDER CARDS
 // ══════════════════════════════════════════════════
+// ── RECENTLY ADDED ROW ──────────────────────────────────────────────────
+function renderRecentRow(){
+  const { rows, cols } = S;
+  const DATE_COL = S.headers.find(h => /date.added|date_added|added|created|published/i.test(h)) || null;
+  const section  = document.getElementById('recent-section');
+  const row_el   = document.getElementById('recent-row');
+
+  // Get latest 10 — by date column if it exists, otherwise last 10 rows in sheet order
+  let recent;
+  if(DATE_COL){
+    recent = [...rows]
+      .filter(r => r[DATE_COL])
+      .sort((a,b)=> new Date(b[DATE_COL]) - new Date(a[DATE_COL]))
+      .slice(0,10);
+  } else {
+    // No date col — use last 10 rows (sheet order = newest at bottom)
+    recent = rows.slice(-10).reverse();
+  }
+
+  if(!recent.length){ section.style.display='none'; return; }
+  section.style.display = '';
+  row_el.innerHTML = '';
+
+  recent.forEach(row => {
+    const title     = cv(row, cols.title) || 'Untitled';
+    const flamLink  = cv(row, cols.flam);
+    const catRaw    = cv(row, cols.cat);
+    const flamType  = cv(row, cols.flamtype);
+    const tags      = catRaw.split(',').map(s=>s.trim()).filter(Boolean);
+    const trigLinks = parseDriveLinks(cv(row, cols.trigger));
+    const vidLinks  = parseDriveLinks(cv(row, cols.video));
+    const thumbUrl  = cv(row, cols.thumb);
+    const hasAssets = flamLink || trigLinks.length || vidLinks.length;
+    const dateStr   = DATE_COL ? row[DATE_COL] : '';
+
+    let thumbHTML = '';
+    if(thumbUrl && isDriveLink(thumbUrl)){
+      const tid = driveId(thumbUrl);
+      if(tid) thumbHTML = `<img src="https://drive.google.com/thumbnail?id=${tid}&sz=w400" alt="" loading="lazy" onload="this.classList.add('loaded')" onerror="this.style.display='none'">`;
+    }
+    if(!thumbHTML && trigLinks.length){
+      const fid = driveId(trigLinks[0]);
+      if(fid) thumbHTML = `<img src="https://drive.google.com/thumbnail?id=${fid}&sz=w400" alt="" loading="lazy" onload="this.classList.add('loaded')" onerror="this.style.display='none'">`;
+    }
+    if(!thumbHTML) thumbHTML = `<div class="thumb-ph">${ph()}</div>`;
+
+    const card = document.createElement('div');
+    card.className = 'recent-card';
+    card.innerHTML = `
+      <div class="c-thumb">
+        ${thumbHTML}
+        <div class="play-veil"><div class="play-disc"><svg viewBox="0 0 14 14"><polygon points="2,1 13,7 2,13"/></svg></div></div>
+        ${flamType?`<div class="type-badge">${esc(flamType)}</div>`:''}
+      </div>
+      <div class="c-body">
+        ${dateStr?`<div class="recent-date">${formatDate(dateStr)}</div>`:''}
+        <div class="c-title">${esc(title)}</div>
+        ${tags.length?`<div class="c-tags">${tags.slice(0,2).map(t=>`<span class="c-tag">${esc(t)}</span>`).join('')}</div>`:''}
+        <div class="c-foot">
+          <span class="c-src">${esc(flamType||catRaw)}</span>
+          <div class="c-btns">
+            ${hasAssets?`<button class="btn-dark" style="font-size:11px;height:24px;padding:0 9px">Preview</button>`:''}
+            ${flamLink?`<button class="btn-ghost" data-copy-flam="${esc(flamLink)}" title="Copy Flam link" style="width:24px;height:24px"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="1" width="7" height="9" rx="1.2"/><path d="M1 3.5v7A1.2 1.2 0 0 0 2.2 11.7H8"/></svg></button>`:''}
+          </div>
+        </div>
+      </div>`;
+
+    card._data = { row, title, flamLink, flamType, catRaw, tags, trigLinks, vidLinks };
+    card.addEventListener('click', e => {
+      const copyBtn = e.target.closest('[data-copy-flam]');
+      if(copyBtn){
+        navigator.clipboard.writeText(copyBtn.dataset.copyFlam).then(()=>{
+          showToast('Flam link copied ✓');
+        }).catch(()=>{ prompt('Copy:',copyBtn.dataset.copyFlam); });
+        return;
+      }
+      openModal(card._data);
+    });
+    row_el.appendChild(card);
+  });
+}
+
+function formatDate(str){
+  try {
+    const d = new Date(str);
+    if(isNaN(d)) return str;
+    return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+  } catch(e){ return str; }
+}
+
 function renderAll(){
   const {rows,cols,filters,search,sort} = S;
   let items = rows.filter(row=>{
@@ -1193,6 +1354,9 @@ function renderAll(){
   if(sort==='za') items.sort((a,b)=>cv(b,cols.title).localeCompare(cv(a,cols.title)));
 
   document.getElementById('s-count').textContent = items.length;
+  // Hide recently added row when user is actively filtering or searching
+  const recentSec = document.getElementById('recent-section');
+  if(recentSec) recentSec.style.display = (S.search || S.filters.cat || S.filters.type) ? 'none' : '';
   const grid = document.getElementById('grid');
   grid.className = 'grid'+(S.view==='list'?' list':'');
 
@@ -1251,6 +1415,7 @@ function renderAll(){
           <span class="c-src">${esc(catRaw)}</span>
           <div class="c-btns">
             ${hasAssets?`<button class="btn-dark" data-open>Preview</button>`:''}
+            ${flamLink?`<button class="btn-ghost" data-copy-flam="${esc(flamLink)}" title="Copy Flam link"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="1" width="7" height="9" rx="1.2"/><path d="M1 3.5v7A1.2 1.2 0 0 0 2.2 11.7H8"/></svg></button>`:''}
             ${flamLink?`<button class="btn-ghost" data-ext="${esc(flamLink)}" title="Open Flam experience"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M1 9L9 1M9 1H4M9 1v5"/></svg></button>`:''}
           </div>
         </div>
@@ -1260,6 +1425,16 @@ function renderAll(){
 
     card.addEventListener('click', e=>{
       if(e.target.closest('[data-ext]')){ window.open(e.target.closest('[data-ext]').dataset.ext,'_blank'); return; }
+      const copyBtn = e.target.closest('[data-copy-flam]');
+      if(copyBtn){
+        const link = copyBtn.dataset.copyFlam;
+        navigator.clipboard.writeText(link).then(()=>{
+          showToast('Flam link copied ✓');
+          copyBtn.style.borderColor='var(--green)';copyBtn.style.color='var(--green)';
+          setTimeout(()=>{copyBtn.style.borderColor='';copyBtn.style.color='';},1800);
+        }).catch(()=>{ prompt('Copy this link:',link); });
+        return;
+      }
       openModal(card._data);
     });
     grid.appendChild(card);
