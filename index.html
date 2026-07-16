@@ -517,11 +517,11 @@ button,select{font-family:var(--font-b)}
     to{transform:translateY(0)}
   }
 
-  /* ── VIDEO PANEL — 70% of sheet ── */
+  /* ── VIDEO PANEL — ~62% of sheet (bar takes ~8%) ── */
   #modal-player-wrap{
     order:1;
     width:100%!important;
-    flex:0 0 70%!important;
+    flex:0 0 62%!important;
     border-radius:24px 24px 0 0;
     display:flex!important;
     flex-direction:column!important;
@@ -539,16 +539,20 @@ button,select{font-family:var(--font-b)}
   }
   .asset-tab{padding:9px 12px;font-size:12px}
 
-  /* ── MOBILE VIDEO ACTION BAR ──
-     Overlaid on bottom of video — Open Flam + Share + Close
+  /* ── MOBILE ACTION BAR ──
+     Sits between video and info panel — keeps Drive player controls unobstructed
   ── */
   .mob-video-bar{
-    position:absolute;bottom:0;left:0;right:0;
     display:none; /* shown only on mobile via JS */
+    flex-shrink:0;
     align-items:center;justify-content:space-between;
-    padding:24px 16px 14px;
-    background:linear-gradient(0deg,rgba(0,0,0,.88) 0%,rgba(0,0,0,.5) 60%,transparent 100%);
-    z-index:10;
+    padding:10px 16px;
+    background:#111;
+    border-top:0.5px solid rgba(255,255,255,.08);
+    border-bottom:0.5px solid rgba(255,255,255,.08);
+    order:15; /* between player (order:1) and info (order:2→20) */
+    width:100%;
+    z-index:5;
   }
   .mob-open-flam{
     display:flex;align-items:center;gap:7px;
@@ -576,7 +580,7 @@ button,select{font-family:var(--font-b)}
 
   /* ── INFO PANEL — 30%, compact + scrollable ── */
   .modal-info{
-    order:2;
+    order:20; /* after bar (order:15) */
     width:100%!important;
     flex:0 0 30%!important;
     min-height:0;
@@ -1074,7 +1078,16 @@ function parseGviz(text) {
         // Formatted value — e.g. "8-Mar-2026" for a date
         obj[h] = cell.f.trim();
       } else {
-        obj[h] = String(cell.v).trim();
+        const sv = String(cell.v).trim();
+        // gviz sometimes returns JS Date constructor strings e.g. "Date(2026,5,29)"
+        // Parse and reformat them
+        const dm = sv.match(/^Date\((\d+),(\d+),(\d+)\)$/);
+        if(dm) {
+          const d = new Date(+dm[1], +dm[2], +dm[3]);
+          obj[h] = d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+        } else {
+          obj[h] = sv;
+        }
       }
     });
     return obj;
@@ -1890,8 +1903,9 @@ function injectMobileVideoBar(){
   // Remove existing bar if any
   document.getElementById('mob-video-bar')?.remove();
 
-  const wrap = document.getElementById('modal-player-wrap');
-  if(!wrap) return;
+  // Bar goes on the modal itself (between player and info), not inside the player
+  const modal = document.getElementById('modal');
+  if(!modal) return;
 
   const bar = document.createElement('div');
   bar.id  = 'mob-video-bar';
@@ -1917,27 +1931,34 @@ function injectMobileVideoBar(){
       </button>
     </div>`;
 
-  wrap.appendChild(bar);
+  // Insert after the player wrap, before modal-info
+  const modalInfo = modal.querySelector('.modal-info');
+  if(modalInfo) modal.insertBefore(bar, modalInfo);
+  else modal.appendChild(bar);
 
   // Open Flam
   const openBtn = document.getElementById('mob-open-flam');
   if(openBtn && flamLink) openBtn.addEventListener('click', ()=>{ window.open(flamLink,'_blank'); });
 
-  // Native share (iOS/Android share sheet) → fallback to copy link
+  // Share the Flam experience link via native share sheet → fallback to clipboard
   document.getElementById('mob-share-btn')?.addEventListener('click', async ()=>{
-    const shareUrl = new URL(window.location.href);
-    shareUrl.searchParams.set('exp', encodeURIComponent(window._modalTitle || ''));
-    const shareData = { title: window._modalTitle || 'Flam Experience', url: shareUrl.toString() };
+    const flamLink = window._modalFlamLink || '';
+    const title    = window._modalTitle    || 'Flam Experience';
+    if(!flamLink){ showToast('No Flam link available'); return; }
+    const shareData = { title, url: flamLink };
     try {
       if(navigator.share && navigator.canShare && navigator.canShare(shareData)){
         await navigator.share(shareData);
       } else {
-        await navigator.clipboard.writeText(shareUrl.toString());
-        showToast('Link copied ✓');
+        await navigator.clipboard.writeText(flamLink);
+        showToast('Flam link copied ✓');
       }
     } catch(e){
-      // User cancelled share or clipboard failed
-      if(e.name !== 'AbortError') showToast('Link copied ✓');
+      if(e.name !== 'AbortError'){
+        // Last fallback
+        try { await navigator.clipboard.writeText(flamLink); showToast('Flam link copied ✓'); }
+        catch(_){}
+      }
     }
   });
 
