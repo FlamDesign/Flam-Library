@@ -1017,52 +1017,70 @@ async function fetchWithTimeout(url, ms=12000){
   }
 }
 
-async function fetchFromAPI(url){
-  // Try fetch first (works on desktop + Android Chrome)
-  try {
-    const res = await fetchWithTimeout(url, 12000);
-    if(!res.ok) throw new Error('Server error ' + res.status);
-    const text = await res.text();
-    let data;
-    try { data = JSON.parse(text); }
-    catch(e) { throw new Error('Invalid response from Apps Script'); }
-    if(data.error) throw new Error(data.error);
-    if(!data.headers || !data.rows) throw new Error('Unexpected response format');
-    return { headers: data.headers, rows: data.rows };
-  } catch(fetchErr) {
-    // Fallback: JSONP — works on iOS Safari where fetch to script.google.com is blocked
-    return await fetchAPIviaJSONP(url);
-  }
+function parseAPIResponse(text) {
+  let data;
+  try { data = JSON.parse(text); } catch(e) { throw new Error('Invalid JSON from Apps Script'); }
+  if(data.error) throw new Error(data.error);
+  if(!data.headers || !data.rows) throw new Error('Unexpected response format');
+  return { headers: data.headers, rows: data.rows };
 }
 
-function fetchAPIviaJSONP(url){
-  return new Promise((resolve, reject) => {
-    const cb = '_jcb_' + Date.now();
-    const timer = setTimeout(() => {
-      delete window[cb];
-      document.getElementById('_jsonp_s')?.remove();
-      reject(new Error('JSONP timeout — Apps Script may be unreachable'));
-    }, 14000);
-    window[cb] = function(data) {
-      clearTimeout(timer);
-      delete window[cb];
-      document.getElementById('_jsonp_s')?.remove();
-      if(data.error) { reject(new Error(data.error)); return; }
-      if(!data.headers || !data.rows) { reject(new Error('Unexpected response')); return; }
-      resolve({ headers: data.headers, rows: data.rows });
-    };
-    // Append callback param to URL
-    const sep = url.includes('?') ? '&' : '?';
-    const s = document.createElement('script');
-    s.id = '_jsonp_s';
-    s.src = url + sep + 'callback=' + cb;
-    s.onerror = () => {
-      clearTimeout(timer);
-      delete window[cb];
-      reject(new Error('Load failed'));
-    };
-    document.head.appendChild(s);
-  });
+// ── GVIZ (Google Visualization API) — works on ALL browsers including iOS ──
+// docs.google.com is never blocked by ITP. This is our primary data source.
+const GVIZ_URL = 'https://docs.google.com/spreadsheets/d/1MouoP7ySmGjO_yq-LvsM6gYcBoRjOiTEQ5w3FZKI7js/gviz/tq?tqx=out:json&gid=0';
+
+function parseGviz(text) {
+  // gviz wraps JSON in: /*O_o*/ google.visualization.Query.setResponse({...});
+  const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
+  if (!match) throw new Error('Unexpected gviz format');
+  const data = JSON.parse(match[1]);
+  if (data.status === 'error') throw new Error(data.errors?.[0]?.detailed_message || 'gviz error');
+  const t = data.table;
+  const headers = t.cols.map(c => (c.label || c.id || '').trim()).filter(Boolean);
+  const rows = t.rows.map(r => {
+    const obj = {};
+    headers.forEach((h, i) => {
+      const cell = r.c?.[i];
+      obj[h] = cell?.v != null ? String(cell.v).trim() : (cell?.f || '');
+    });
+    return obj;
+  }).filter(r => Object.values(r).some(v => v));
+  return { headers, rows };
+}
+
+async function fetchFromGviz() {
+  const res = await fetchWithTimeout(GVIZ_URL, 10000);
+  if (!res.ok) throw new Error('gviz HTTP ' + res.status);
+  return parseGviz(await res.text());
+}
+
+async function fetchFromAPI(url) {
+  // Strategy 1: gviz (docs.google.com) — works on iOS, Android, all browsers
+  // No auth needed, no CORS issues, no ITP blocking
+  try {
+    return await fetchFromGviz();
+  } catch(e0) {
+    console.warn('gviz failed:', e0.message);
+  }
+
+  // Strategy 2: Direct Apps Script fetch — works on Chrome desktop + Android
+  try {
+    const res = await fetchWithTimeout(url, 10000);
+    if(res.ok) return parseAPIResponse(await res.text());
+  } catch(e1) {
+    console.warn('Direct fetch failed:', e1.message);
+  }
+
+  // Strategy 3: allorigins proxy
+  try {
+    const proxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+    const res = await fetchWithTimeout(proxy, 12000);
+    if(res.ok) return parseAPIResponse(await res.text());
+  } catch(e2) {
+    console.warn('Proxy fetch failed:', e2.message);
+  }
+
+  throw new Error('Load failed — could not reach data source.');
 }
 
 async function loadFromAPI(url, onErr){
