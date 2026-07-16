@@ -163,6 +163,8 @@ button,select{font-family:var(--font-b)}
 .recent-row{
   display:flex;gap:12px;
   overflow-x:auto;
+  overflow-y:hidden;         /* prevent vertical scroll trap */
+  overscroll-behavior-x:contain; /* horizontal scroll stays inside, page scrolls vertically */
   padding-bottom:10px;
   scroll-snap-type:x mandatory;
   -webkit-overflow-scrolling:touch;
@@ -1334,13 +1336,24 @@ function renderRecentRow(){
 
   // Get latest 10 — by date column if it exists, otherwise last 10 rows in sheet order
   let recent;
+  function parseDate(str){
+    if(!str) return null;
+    // Handle DD/MM/YYYY (common in Google Sheets)
+    const dmy = str.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
+    if(dmy) return new Date(+dmy[3], +dmy[2]-1, +dmy[1]);
+    // Handle YYYY-MM-DD and other formats
+    const d = new Date(str);
+    return isNaN(d) ? null : d;
+  }
+
   if(DATE_COL){
     recent = [...rows]
-      .filter(r => r[DATE_COL])
-      .sort((a,b)=> new Date(b[DATE_COL]) - new Date(a[DATE_COL]))
+      .filter(r => r[DATE_COL] && parseDate(r[DATE_COL]))
+      .sort((a,b) => parseDate(b[DATE_COL]) - parseDate(a[DATE_COL]))
       .slice(0,10);
+    // If no dates parsed, fall back to sheet order
+    if(!recent.length) recent = rows.slice(-10).reverse();
   } else {
-    // No date col — use last 10 rows (sheet order = newest at bottom)
     recent = rows.slice(-10).reverse();
   }
 
