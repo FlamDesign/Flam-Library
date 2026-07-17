@@ -1892,14 +1892,12 @@ function renderModalPlayer(idx){
   if(asset.kind==='video' && tid){
     const previewUrl = drivePreview(asset.url);
     const posterUrl  = `https://drive.google.com/thumbnail?id=${tid}&sz=w800`;
+    // On mobile: scale iframe wider than container so Drive fills height without letterboxing
+    // Drive renders 16:9 internally — to fill a portrait container we scale it up
     const isMobNow = window.innerWidth <= 768;
-    // On mobile: scale iframe to fill container (cover-crop removes letterboxing)
-    // On desktop: normal fill
-    const iframeStyle = isMobNow
-      ? `position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-         width:${Math.ceil(100 * (9/16) * (window.innerHeight/window.innerWidth) * 1.02)}%;
-         height:102%;border:none;display:block;`
-      : 'position:absolute;inset:0;width:100%;height:100%;border:none;display:block;';
+    const mobW = isMobNow
+      ? Math.ceil((window.screen.height / window.screen.width) * (16/9) * 102) + '%'
+      : '100%';
 
     playerHTML = `<div class="modal-player" id="modal-player-el" style="flex:1;min-height:0">
       <div class="video-poster">
@@ -1907,8 +1905,7 @@ function renderModalPlayer(idx){
         <div class="play-ring-lg"><svg viewBox="0 0 18 18"><polygon points="3,2 16,9 3,16"/></svg></div>
       </div>
       <iframe src="${previewUrl}" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"
-        style="${iframeStyle.replace(/
-\s+/g,' ')}"
+        style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:${mobW};height:102%;border:none;display:block;"
         onload="document.getElementById('modal-player-el')?.classList.add('ready')">
       </iframe>
     </div>`;
