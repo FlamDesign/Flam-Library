@@ -11,7 +11,7 @@
   html,body{background:#141414!important;color:#e8e6e3}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=Roboto+Condensed:wght@600;700&family=Roboto:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -20,7 +20,7 @@
   --paper:#141414;--surface:#1f1f1f;--wash:#2a2a2a;--rule:#2e2e2e;--rule2:#3a3a3a;
   --flame:#e84b1a;--flame-bg:rgba(232,75,26,.15);
   --green:#2ecc71;--green-bg:rgba(46,204,113,.12);
-  --font-d:'DM Serif Display',Georgia,serif;
+  --font-d:'Roboto Condensed','Roboto',sans-serif;
   --font-b:'DM Sans',sans-serif;
   --r:10px;
   --sh-s:0 2px 8px rgba(0,0,0,.4);
@@ -1697,17 +1697,15 @@ function legacyCopy(text){
 }
 
 // ── SHARE LINK ──
-function shareCard(title){
-  const url = new URL(window.location.href);
-  url.searchParams.set('exp', encodeURIComponent(title));
-  navigator.clipboard.writeText(url.toString()).then(()=>{
-    showToast('Link copied to clipboard ✓');
+function shareCard(){
+  // Copy the Flam experience link directly
+  const flamLink = window._modalFlamLink || '';
+  if(!flamLink){ showToast('No Flam link for this experience'); return; }
+  navigator.clipboard.writeText(flamLink).then(()=>{
+    showToast('Flam link copied ✓');
     const btn=document.getElementById('share-btn');
     if(btn){ btn.classList.add('copied'); setTimeout(()=>btn.classList.remove('copied'),2000); }
-  }).catch(()=>{
-    // Fallback for non-https
-    prompt('Copy this link:', url.toString());
-  });
+  }).catch(()=>{ prompt('Copy Flam link:', flamLink); });
 }
 
 // ── DEEP LINK on load ──
@@ -1775,9 +1773,9 @@ function openModal({ row, title, flamLink, flamType, catRaw, tags, trigLinks, vi
 
   // Action buttons row (share + export)
   document.getElementById('modal-actions').innerHTML = `
-    <button class="modal-action-btn" id="share-btn" onclick="shareCard('${esc(title).replace(/'/g,"\'")}')">
+    <button class="modal-action-btn" id="share-btn" onclick="shareCard()">
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="2" r="1.5"/><circle cx="2" cy="6" r="1.5"/><circle cx="9" cy="10" r="1.5"/><path d="M3.5 5.1l4-2.6M3.5 7l4 2.6"/></svg>
-      Share link
+      Flam link
     </button>
     <button class="modal-action-btn" id="copy-card-btn" onclick="copyCardToClipboard()">
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="1" width="7" height="9" rx="1.2"/><path d="M1 3.5v7A1.2 1.2 0 0 0 2.2 11.7H8"/></svg>
@@ -1854,41 +1852,22 @@ function renderModalPlayer(idx){
   const previewUrl = drivePreview(asset.url);
   let playerHTML='';
 
-  const isMobile = window.innerWidth <= 768;
   const tid = driveId(asset.url);
 
   if(asset.kind==='video' && tid){
-    if(isMobile){
-      // Mobile: use native <video> tag — clean iOS controls, no Drive UI overlay
-      // Drive direct-download URL streams video natively on iOS
-      // Drive streaming URL for native <video> — works on iOS Safari/Chrome
-      // The preview URL can also be used as video src on some files
-      const directUrl = `https://drive.google.com/uc?export=download&id=${tid}&confirm=t`;
-      const posterUrl = `https://drive.google.com/thumbnail?id=${tid}&sz=w800`;
-      playerHTML=`<div class="modal-player" id="modal-player-el" style="background:#000">
-        <video
-          src="${directUrl}"
-          poster="${posterUrl}"
-          controls
-          playsinline
-          preload="metadata"
-          style="width:100%;height:100%;object-fit:contain;display:block;background:#000"
-        ></video>
-      </div>`;
-    } else {
-      // Desktop: Drive iframe works fine
-      const previewUrl = drivePreview(asset.url);
-      const posterUrl = tid ? `https://drive.google.com/thumbnail?id=${tid}&sz=w800` : '';
-      playerHTML=`<div class="modal-player" id="modal-player-el">
-        ${posterUrl ? `<div class="video-poster">
-          <img src="${posterUrl}" alt="">
-          <div class="play-ring-lg"><svg viewBox="0 0 18 18"><polygon points="3,2 16,9 3,16"/></svg></div>
-        </div>` : ''}
-        <iframe src="${previewUrl}" allowfullscreen allow="autoplay; encrypted-media"
-          onload="document.getElementById('modal-player-el')?.classList.add('ready')">
-        </iframe>
-      </div>`;
-    }
+    // Drive /preview iframe — works on all devices including iOS
+    // No custom UI overlaid on video; action bar sits in info panel below
+    const previewUrl = drivePreview(asset.url);
+    const posterUrl = `https://drive.google.com/thumbnail?id=${tid}&sz=w800`;
+    playerHTML=`<div class="modal-player" id="modal-player-el">
+      <div class="video-poster">
+        <img src="${posterUrl}" alt="">
+        <div class="play-ring-lg"><svg viewBox="0 0 18 18"><polygon points="3,2 16,9 3,16"/></svg></div>
+      </div>
+      <iframe src="${previewUrl}" allowfullscreen allow="autoplay; encrypted-media"
+        onload="document.getElementById('modal-player-el')?.classList.add('ready')">
+      </iframe>
+    </div>`;
   } else if(asset.kind==='image' && tid){
     const previewUrl = drivePreview(asset.url);
     playerHTML=`<div class="modal-player"><img src="https://drive.google.com/thumbnail?id=${tid}&sz=w1600" alt="" onerror="this.src='${previewUrl}'"></div>`;
