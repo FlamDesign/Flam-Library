@@ -509,7 +509,7 @@ button,select{font-family:var(--font-b)}
     border-radius:24px 24px 0 0;
     width:100%;max-width:100%;
     /* Total sheet = 88vh so 12vh backdrop is always tappable to close */
-    height:88vh;max-height:88vh;min-height:0;
+    height:92vh;max-height:92vh;min-height:0;
     animation:mob-slide-up .28s cubic-bezier(.32,.72,0,1);
     will-change:transform;
   }
@@ -518,83 +518,100 @@ button,select{font-family:var(--font-b)}
     to{transform:translateY(0)}
   }
 
-  /* ── VIDEO PANEL — ~62% of sheet (bar takes ~8%) ── */
+  /* ── VIDEO PANEL — 90% of sheet, Reels style ── */
   #modal-player-wrap{
     order:1;
     width:100%!important;
-    flex:0 0 62%!important;
+    flex:0 0 90%!important;
     border-radius:24px 24px 0 0;
     display:flex!important;
     flex-direction:column!important;
     overflow:hidden;
     background:#0e0e0e;
-    position:relative;
+    position:relative; /* overlay children use absolute positioning */
   }
 
   /* Asset tabs — slim, top of video */
-  .asset-tabs{
-    background:rgba(0,0,0,.6);
-    backdrop-filter:blur(4px);
-    padding:0 14px;
-    flex-shrink:0;
-  }
-  .asset-tab{padding:9px 12px;font-size:12px}
+  /* ── REELS-STYLE MOBILE PLAYER ── */
 
-  /* ── MOBILE ACTION BAR ──
-     Sits at top of info panel — Drive player plays cleanly above, no overlap
-  ── */
-  .mob-video-bar{display:none!important} /* never overlay Drive player */
-  .mob-action-bar{
-    display:flex;align-items:center;gap:8px;
-    padding:10px 14px 10px;
-    flex-shrink:0;
-    border-bottom:1px solid var(--rule);
-    background:#1a1a1a;
+  /* Asset tabs — scrollable pill row, top of video */
+  .asset-tabs{
+    position:absolute;top:14px;left:12px;right:52px; /* leave room for close btn */
+    display:flex;gap:4px;
+    background:transparent;
+    padding:0;
+    overflow-x:auto;overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    scrollbar-width:none;
+    z-index:10;
   }
-  .mob-open-flam{
+  .asset-tabs::-webkit-scrollbar{display:none}
+  .asset-tab{
+    flex-shrink:0;scroll-snap-align:start;
+    padding:5px 11px;font-size:10.5px;font-weight:600;
+    border-radius:20px;border:none;
+    background:rgba(0,0,0,.5);
+    color:rgba(255,255,255,.45);
+    cursor:pointer;white-space:nowrap;
+    border-bottom:none; /* override desktop underline style */
+    transition:all .15s;
+  }
+  .asset-tab.on{background:rgba(255,255,255,.18);color:white;}
+  .asset-tab:hover{color:rgba(255,255,255,.8)}
+
+  /* Close — top right circle */
+  .close-btn{
+    display:grid!important;
+    position:absolute;top:10px;right:10px;z-index:11;
+    width:32px;height:32px;border-radius:50%;
+    background:rgba(0,0,0,.55);
+    border:0.5px solid rgba(255,255,255,.2);
+    color:rgba(255,255,255,.9);
+    cursor:pointer;place-items:center;
+    backdrop-filter:blur(4px);
+    transition:background .15s;
+  }
+  .close-btn:hover,.close-btn:active{background:rgba(0,0,0,.8)}
+  .close-btn svg{stroke:white;stroke-width:1.9;fill:none}
+
+  /* Hide desktop info panel & action buttons entirely on mobile */
+  .modal-info{display:none!important}
+  .modal-actions{display:none!important}
+
+  /* ── MOBILE BOTTOM OVERLAY — title + action row ── */
+  .mob-bottom-overlay{
+    position:absolute;bottom:0;left:0;right:0;z-index:10;
+    background:linear-gradient(0deg,rgba(0,0,0,.92) 0%,rgba(0,0,0,.5) 55%,transparent 100%);
+    padding:40px 14px 20px;
+  }
+  .mob-exp-title{
+    font-family:var(--font-b);font-size:15px;font-weight:600;
+    color:white;margin:0 0 10px;
+    text-shadow:0 1px 4px rgba(0,0,0,.5);
+  }
+  .mob-action-row{
+    display:flex;align-items:center;gap:8px;
+  }
+  /* Flam pill button */
+  .mob-flam-btn{
     flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
-    background:var(--flame);border:none;border-radius:10px;height:42px;
+    background:var(--flame);border:none;border-radius:50px;height:42px;
     font-family:var(--font-b);font-size:13px;font-weight:600;color:white;
     cursor:pointer;-webkit-tap-highlight-color:transparent;
-    transition:background .15s,transform .12s;
+    transition:background .15s,transform .1s;
   }
-  .mob-open-flam:active{background:#c93d12;transform:scale(.98)}
+  .mob-flam-btn:active{background:#c93d12;transform:scale(.97)}
+  /* Circle icon buttons */
   .mob-icon-btn{
-    width:42px;height:42px;flex-shrink:0;border-radius:10px;
-    background:rgba(255,255,255,.07);border:0.5px solid var(--rule2);
+    width:42px;height:42px;flex-shrink:0;border-radius:50%;
+    background:rgba(255,255,255,.13);
+    border:0.5px solid rgba(255,255,255,.22);
     display:flex;align-items:center;justify-content:center;
     cursor:pointer;-webkit-tap-highlight-color:transparent;
-    transition:background .15s,transform .12s;
+    transition:background .15s,transform .1s;
   }
-  .mob-icon-btn:active{background:rgba(255,255,255,.18);transform:scale(.95)}
-  .mob-icon-btn svg{stroke:var(--ink);fill:none;stroke-width:1.8}
-
-  /* ── INFO PANEL — 30%, compact + scrollable ── */
-  .modal-info{
-    order:20; /* after bar (order:15) */
-    width:100%!important;
-    flex:0 0 38%!important; /* slightly more room for action bar */
-    min-height:0;
-    border-right:none;
-    border-top:1px solid var(--rule);
-    overflow-y:auto;
-    -webkit-overflow-scrolling:touch;
-    overscroll-behavior:contain;
-    background:#1a1a1a;
-  }
-  .modal-info::-webkit-scrollbar{display:none}
-
-  /* Drag handle */
-  .modal-info::before{
-    content:'';display:block;
-    width:32px;height:3px;border-radius:2px;
-    background:var(--rule2);
-    margin:8px auto 0;flex-shrink:0;
-  }
-
-  /* Hide desktop close btn & action buttons — replaced by mob-video-bar */
-  .close-btn{display:none!important}
-  .modal-actions{display:none!important}
+  .mob-icon-btn:active{background:rgba(255,255,255,.28);transform:scale(.95)}
+  .mob-icon-btn svg{stroke:white;fill:none;stroke-width:1.7}
 
   .modal-info-head{
     padding:4px 16px 10px;
@@ -1835,7 +1852,12 @@ function openModal({ row, title, flamLink, flamType, catRaw, tags, trigLinks, vi
 function renderModalPlayer(idx){
   _currentAssetIdx = idx;
   const wrap = document.getElementById('modal-player-wrap');
-  wrap.style.cssText = 'flex:1;min-width:0;display:flex;flex-direction:column;background:#0e0e0e;overflow:hidden;';
+  // On mobile (width <= 768) CSS handles sizing; on desktop set inline style
+  if(window.innerWidth > 768){
+    wrap.style.cssText = 'flex:1;min-width:0;display:flex;flex-direction:column;background:#0e0e0e;overflow:hidden;';
+  } else {
+    wrap.style.cssText = ''; // let mobile CSS take over
+  }
 
   if(_currentAssets.length === 0){
     wrap.innerHTML=`<div class="modal-player" style="flex:1"><div class="no-embed"><div class="no-embed-icon">▶</div><div>No preview assets available</div></div></div>`;
@@ -1859,7 +1881,7 @@ function renderModalPlayer(idx){
     // No custom UI overlaid on video; action bar sits in info panel below
     const previewUrl = drivePreview(asset.url);
     const posterUrl = `https://drive.google.com/thumbnail?id=${tid}&sz=w800`;
-    playerHTML=`<div class="modal-player" id="modal-player-el">
+    playerHTML=`<div class="modal-player" id="modal-player-el" style="flex:1;min-height:0">
       <div class="video-poster">
         <img src="${posterUrl}" alt="">
         <div class="play-ring-lg"><svg viewBox="0 0 18 18"><polygon points="3,2 16,9 3,16"/></svg></div>
@@ -1889,67 +1911,84 @@ function renderModalPlayer(idx){
 }
 
 function injectMobileVideoBar(){
-  // Remove existing bar if re-rendering
-  document.getElementById('mob-action-bar')?.remove();
+  // Clean up previous overlays
+  document.getElementById('mob-bottom-overlay')?.remove();
 
-  // Inject at top of info panel — video plays cleanly above with native controls
-  const info = document.getElementById('modal-info');
-  if(!info) return;
-
-  const bar = document.createElement('div');
-  bar.id  = 'mob-action-bar';
-  bar.className = 'mob-action-bar';
+  const wrap = document.getElementById('modal-player-wrap');
+  if(!wrap) return;
 
   const flamLink = window._modalFlamLink || '';
+  const title    = window._modalTitle    || '';
 
-  bar.innerHTML = `
-    ${flamLink
-      ? `<button class="mob-open-flam" id="mob-open-flam">
-          <svg width="13" height="13" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="1.8"><polygon points="2,1 11,6 2,11" fill="white" stroke="none"/></svg>
-          Open Flam
-        </button>`
-      : `<div></div>`
-    }
-    <div class="mob-icon-btns">
-      <button class="mob-icon-btn" id="mob-share-btn" title="Share">
-        <svg width="14" height="14" viewBox="0 0 16 16"><path d="M8 2v9M4 7l4-5 4 5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 13h10" stroke-linecap="round"/></svg>
+  // ── BOTTOM OVERLAY — title + action row ──
+  const overlay = document.createElement('div');
+  overlay.id = 'mob-bottom-overlay';
+  overlay.className = 'mob-bottom-overlay';
+  overlay.innerHTML = `
+    ${title ? `<p class="mob-exp-title">${esc(title)}</p>` : ''}
+    <div class="mob-action-row">
+      ${flamLink
+        ? `<button class="mob-flam-btn" id="mob-flam-btn">
+            <svg width="13" height="13" viewBox="0 0 12 12"><polygon points="2,1 11,6 2,11" fill="white"/></svg>
+            Flam
+           </button>`
+        : ''
+      }
+      <button class="mob-icon-btn" id="mob-copy-btn" title="Copy Flam link">
+        <svg width="15" height="15" viewBox="0 0 16 16" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="2" width="9" height="11" rx="1.5"/>
+          <path d="M2 5v9a1.5 1.5 0 0 0 1.5 1.5H11"/>
+        </svg>
       </button>
-      <button class="mob-icon-btn" id="mob-close-btn" title="Close">
-        <svg width="12" height="12" viewBox="0 0 12 12"><line x1="1" y1="1" x2="11" y2="11" stroke-linecap="round"/><line x1="11" y1="1" x2="1" y2="11" stroke-linecap="round"/></svg>
+      <button class="mob-icon-btn" id="mob-share-btn" title="Share">
+        <svg width="15" height="15" viewBox="0 0 16 16" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 2v9"/><path d="M5 6l3-4 3 4"/><path d="M3 13h10"/>
+        </svg>
       </button>
     </div>`;
+  wrap.appendChild(overlay);
 
-  // Insert as first child of info panel
-  info.insertBefore(bar, info.firstChild);
+  // ── CLOSE BTN — move to video panel top-right ──
+  // Re-show the desktop close btn but styled for mobile via CSS
+  const closeBtn = document.getElementById('modal-close');
+  if(closeBtn) closeBtn.style.display = 'grid';
 
-  // Open Flam
-  const openBtn = document.getElementById('mob-open-flam');
-  if(openBtn && flamLink) openBtn.addEventListener('click', ()=>{ window.open(flamLink,'_blank'); });
-
-  // Share the Flam experience link via native share sheet → fallback to clipboard
-  document.getElementById('mob-share-btn')?.addEventListener('click', async ()=>{
-    const flamLink = window._modalFlamLink || '';
-    const title    = window._modalTitle    || 'Flam Experience';
-    if(!flamLink){ showToast('No Flam link available'); return; }
-    const shareData = { title, url: flamLink };
-    try {
-      if(navigator.share && navigator.canShare && navigator.canShare(shareData)){
-        await navigator.share(shareData);
-      } else {
-        await navigator.clipboard.writeText(flamLink);
-        showToast('Flam link copied ✓');
-      }
-    } catch(e){
-      if(e.name !== 'AbortError'){
-        // Last fallback
-        try { await navigator.clipboard.writeText(flamLink); showToast('Flam link copied ✓'); }
-        catch(_){}
-      }
-    }
+  // ── HANDLERS ──
+  // Flam button
+  document.getElementById('mob-flam-btn')?.addEventListener('click', ()=>{
+    if(flamLink) window.open(flamLink, '_blank');
   });
 
-  // Close
-  document.getElementById('mob-close-btn')?.addEventListener('click', closeModal);
+  // Copy Flam link to clipboard
+  document.getElementById('mob-copy-btn')?.addEventListener('click', async ()=>{
+    if(!flamLink){ showToast('No Flam link'); return; }
+    try {
+      await navigator.clipboard.writeText(flamLink);
+      showToast('Flam link copied ✓');
+      const btn = document.getElementById('mob-copy-btn');
+      if(btn){
+        const prev = btn.innerHTML;
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14"><polyline points="1,7 5,11 13,2" stroke="white" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        setTimeout(()=>{ btn.innerHTML = prev; }, 1800);
+      }
+    } catch(e){ prompt('Copy:', flamLink); }
+  });
+
+  // Native share → clipboard fallback
+  document.getElementById('mob-share-btn')?.addEventListener('click', async ()=>{
+    if(!flamLink){ showToast('No Flam link'); return; }
+    const shareData = { title: title || 'Flam Experience', url: flamLink };
+    try {
+      if(navigator.share && navigator.canShare?.(shareData)){
+        await navigator.share(shareData);
+        return;
+      }
+    } catch(e){ if(e.name === 'AbortError') return; }
+    try {
+      await navigator.clipboard.writeText(flamLink);
+      showToast('Flam link copied ✓');
+    } catch(_){ prompt('Copy:', flamLink); }
+  });
 }
 
 function closeModal(){
@@ -1971,7 +2010,7 @@ document.getElementById('modal-bg').addEventListener('click',e=>{ if(e.target===
 window.addEventListener('resize', ()=>{
   if(document.getElementById('modal-bg')?.classList.contains('open')){
     if(window.innerWidth <= 768) injectMobileVideoBar();
-    else document.getElementById('mob-action-bar')?.remove();
+    else document.getElementById('mob-bottom-overlay')?.remove();
   }
 });
 
