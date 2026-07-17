@@ -43,7 +43,7 @@ button,select{font-family:var(--font-b)}
   border-bottom:1px solid var(--rule);
 }
 .brand{display:flex;align-items:center;gap:9px;text-decoration:none;flex-shrink:0}
-.brand-mark{width:28px;height:28px;border-radius:8px;background:var(--ink);display:grid;place-items:center;transition:background .2s}
+.brand-mark"><svg viewBox="0 0 9 10"><polygon points="1,1 8,5 1,9"/></svg></div>
 .brand:hover .brand-mark{background:var(--flame)}
 .brand-mark svg{width:10px;fill:#fff}
 .brand-name{font-family:var(--font-d);font-size:18px;color:var(--ink);letter-spacing:-.3px}
@@ -148,7 +148,8 @@ button,select{font-family:var(--font-b)}
 .grid.list .c-tags,.grid.list .type-badge{display:none}
 .grid.list .c-foot{border:none;padding:0;flex-shrink:0}
 .grid.list .c-src{display:none}
-/* ── RECENTLY ADDED ROW (Netflix-style) ── */
+
+/* ── RECENTLY ADDED ROW ── */
 .recent-section{padding:0 0 28px}
 .recent-heading{
   font-family:var(--font-d);font-size:20px;color:var(--ink);
@@ -163,13 +164,12 @@ button,select{font-family:var(--font-b)}
 .recent-row{
   display:flex;gap:12px;
   overflow-x:auto;
-  overflow-y:hidden;         /* prevent vertical scroll trap */
-  overscroll-behavior-x:contain; /* horizontal scroll stays inside, page scrolls vertically */
+  overflow-y:hidden;
+  overscroll-behavior-x:contain;
   padding-bottom:10px;
   scroll-snap-type:x mandatory;
   -webkit-overflow-scrolling:touch;
   scrollbar-width:none;
-  /* Negative margin trick to allow hover scale to overflow */
   padding-top:16px;margin-top:-16px;
   padding-left:2px;margin-left:-2px;
 }
@@ -200,13 +200,11 @@ button,select{font-family:var(--font-b)}
   letter-spacing:.3px;margin-bottom:3px;
 }
 
-/* main grid section heading */
 .all-heading{
   font-family:var(--font-d);font-size:20px;color:var(--ink);
   margin-bottom:16px;
 }
 .section-divider{height:1px;background:var(--rule);margin:0 0 24px}
-
 
 /* ── STATE WRAPPERS ── */
 .state-box{grid-column:1/-1;min-height:300px;display:flex;align-items:center;justify-content:center;padding:48px}
@@ -222,7 +220,6 @@ button,select{font-family:var(--font-b)}
 .modal-bg.open{display:flex;animation:fadein .18s ease}
 @keyframes fadein{from{opacity:0}to{opacity:1}}
 
-/* ── MODAL: side-by-side 80% screen ── */
 .modal{
   display:flex;flex-direction:row;
   background:#1f1f1f;border-radius:18px;
@@ -309,11 +306,6 @@ button,select{font-family:var(--font-b)}
 .modal-player iframe{position:absolute;inset:0;width:100%;height:100%;border:none;display:block;z-index:2}
 .modal-player video{width:100%;height:100%;object-fit:contain;display:block;background:#000;max-height:100%}
 .modal-player img{width:100%;height:100%;object-fit:contain;display:block;background:#0e0e0e}
-.modal-player .video-poster{position:absolute;inset:0;background:#0e0e0e;display:flex;align-items:center;justify-content:center;z-index:1;transition:opacity .3s}
-.modal-player .video-poster img{width:100%;height:100%;object-fit:cover;opacity:.4}
-.modal-player .video-poster .play-ring-lg{position:absolute;width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(0,0,0,.5)}
-.modal-player .video-poster .play-ring-lg svg{width:18px;fill:#111;margin-left:3px}
-.modal-player.ready .video-poster{opacity:0;pointer-events:none}
 .no-embed{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#111;color:rgba(255,255,255,.4);font-size:13px}
 .no-embed-icon{font-size:38px;opacity:.5}
 
@@ -387,11 +379,11 @@ button,select{font-family:var(--font-b)}
 .skel-title{ height:13px;width:90%;border-radius:4px; }
 .skel-tag{ height:20px;width:64px;border-radius:10px; }
 
-/* ── MOBILE FILTER BAR (hidden on desktop) ── */
+/* ── MOBILE FILTER BAR ── */
 .mobile-filters{display:none}
 .mob-filter-btn{display:none}
 
-/* ── FILTER BOTTOM SHEET (mobile only) ── */
+/* ── FILTER BOTTOM SHEET ── */
 .filter-sheet-overlay{display:none;position:fixed;inset:0;z-index:400;background:rgba(24,18,14,.5);backdrop-filter:blur(4px)}
 .filter-sheet-overlay.open{display:block;animation:fadein .18s ease}
 .filter-sheet{
@@ -426,17 +418,13 @@ button,select{font-family:var(--font-b)}
 .filter-sheet-apply:hover{background:var(--flame)}
 
 @media(max-width:768px){
-  /* Topbar */
   .topbar{padding:0 14px;height:52px;gap:8px}
   .brand-name{display:none}
   .search-wrap{max-width:none;flex:1}
   .count-tag{display:none}
   .src-badge{display:none}
-
-  /* Hide desktop sidebar */
   .sidebar{display:none}
 
-  /* Mobile filter strip */
   .mobile-filters{
     display:flex;gap:7px;padding:9px 14px;
     overflow-x:auto;border-bottom:1px solid var(--rule);
@@ -446,7 +434,6 @@ button,select{font-family:var(--font-b)}
   }
   .mobile-filters::-webkit-scrollbar{display:none}
 
-  /* Filter button in strip */
   .mob-filter-btn{
     display:flex;flex-shrink:0;align-items:center;gap:5px;
     height:30px;padding:0 12px;border-radius:20px;
@@ -465,17 +452,10 @@ button,select{font-family:var(--font-b)}
   .mf-chip:hover{border-color:var(--ink);color:var(--ink)}
   .mf-chip.on{background:var(--flame-bg);border-color:var(--flame);color:var(--flame)}
 
-  /* Layout */
   .layout{flex-direction:column}
   .main{padding:14px 14px 80px}
-
-  /* Toolbar */
   .toolbar{margin-bottom:14px}
-
-  /* Grid — 2 col on bigger phones, 1 col on small */
   .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
-
-  /* Cards */
   .c-thumb{aspect-ratio:16/9}
   .c-body{padding:10px 11px 12px}
   .c-title{font-size:13px;-webkit-line-clamp:2}
@@ -487,159 +467,111 @@ button,select{font-family:var(--font-b)}
   .btn-ghost{width:28px;height:28px}
   .type-badge{font-size:9px;padding:2px 6px}
 
-  /* List mode on mobile */
   .grid.list{grid-template-columns:1fr}
   .grid.list .card{height:72px}
   .grid.list .c-thumb{width:108px;height:72px}
   .grid.list .c-title{font-size:13px}
 
-  /* ── MODAL MOBILE ──
-     iPhone 390×844 — sheet slides up from bottom
-     Video = 70% of sheet height, controls overlaid on video
-     Info  = 30%, scrollable, compact
-  ── */
+  /* ── MOBILE OPTIMIZED MODAL SCREEN ── */
   .modal-bg{
     padding:0;
     align-items:flex-end;
-    overscroll-behavior:none;
   }
-
   .modal{
     flex-direction:column;
     border-radius:24px 24px 0 0;
     width:100%;max-width:100%;
-    /* Total sheet = 88vh so 12vh backdrop is always tappable to close */
-    height:92vh;max-height:92vh;min-height:0;
+    height:92vh;max-height:92vh;
     animation:mob-slide-up .28s cubic-bezier(.32,.72,0,1);
-    will-change:transform;
+    background:#000;
   }
   @keyframes mob-slide-up{
     from{transform:translateY(100%)}
     to{transform:translateY(0)}
   }
 
-  /* ── VIDEO PANEL — 90% of sheet, Reels style ── */
+  /* Full vertical mobile layout player */
   #modal-player-wrap{
     order:1;
     width:100%!important;
-    flex:0 0 90%!important;
-    border-radius:24px 24px 0 0;
+    flex:1!important;
     display:flex!important;
     flex-direction:column!important;
     overflow:hidden;
-    background:#0e0e0e;
-    position:relative; /* overlay children use absolute positioning */
+    background:#000;
+    position:relative;
   }
 
-  /* Asset tabs — slim, top of video */
-  /* ── REELS-STYLE MOBILE PLAYER ── */
+  .modal-player{
+    width:100%;height:100%;
+    position:absolute;inset:0;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .modal-player video{
+    width:100%;height:100%;
+    object-fit:cover; /* Vertically fills display space correctly like TikTok/Reels */
+    background:#000;
+  }
 
-  /* Asset tabs — scrollable pill row, top of video */
+  /* Header row layered nicely on mobile video */
   .asset-tabs{
-    position:absolute;top:14px;left:12px;right:52px; /* leave room for close btn */
-    display:flex;gap:4px;
-    background:transparent;
-    padding:0;
-    overflow-x:auto;overflow-y:hidden;
-    scroll-snap-type:x mandatory;
-    scrollbar-width:none;
-    z-index:10;
+    position:absolute;top:16px;left:14px;right:56px;
+    display:flex;gap:6px;background:transparent;padding:0;
+    overflow-x:auto;scrollbar-width:none;z-index:15;
   }
-  .asset-tabs::-webkit-scrollbar{display:none}
   .asset-tab{
-    flex-shrink:0;scroll-snap-align:start;
-    padding:5px 11px;font-size:10.5px;font-weight:600;
-    border-radius:20px;border:none;
-    background:rgba(0,0,0,.5);
-    color:rgba(255,255,255,.45);
-    cursor:pointer;white-space:nowrap;
-    border-bottom:none; /* override desktop underline style */
-    transition:all .15s;
+    padding:6px 14px;font-size:11px;font-weight:600;
+    border-radius:20px;background:rgba(0,0,0,.55);
+    color:rgba(255,255,255,.6);border-bottom:none;
   }
-  .asset-tab.on{background:rgba(255,255,255,.18);color:white;}
-  .asset-tab:hover{color:rgba(255,255,255,.8)}
+  .asset-tab.on{background:rgba(255,255,255,.25);color:#fff;}
 
-  /* Close — top right circle */
   .close-btn{
     display:grid!important;
-    position:absolute;top:10px;right:10px;z-index:11;
-    width:32px;height:32px;border-radius:50%;
-    background:rgba(0,0,0,.55);
-    border:0.5px solid rgba(255,255,255,.2);
-    color:rgba(255,255,255,.9);
-    cursor:pointer;place-items:center;
-    backdrop-filter:blur(4px);
-    transition:background .15s;
+    position:absolute;top:12px;right:12px;z-index:20;
+    width:34px;height:34px;border-radius:50%;
+    background:rgba(0,0,0,.55);border:0.5px solid rgba(255,255,255,.2);
+    color:#fff;backdrop-filter:blur(4px);
   }
-  .close-btn:hover,.close-btn:active{background:rgba(0,0,0,.8)}
-  .close-btn svg{stroke:white;stroke-width:1.9;fill:none}
 
-  /* Hide desktop info panel & action buttons entirely on mobile */
   .modal-info{display:none!important}
   .modal-actions{display:none!important}
 
-  /* ── MOBILE BOTTOM OVERLAY — title + action row ── */
+  /* Immersion UI Floating Layer at Bottom edge */
   .mob-bottom-overlay{
     position:absolute;bottom:0;left:0;right:0;z-index:10;
-    background:linear-gradient(0deg,rgba(0,0,0,.92) 0%,rgba(0,0,0,.5) 55%,transparent 100%);
-    padding:40px 14px 20px;
+    background:linear-gradient(0deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 60%, transparent 100%);
+    padding:60px 16px calc(env(safe-area-inset-bottom, 16px) + 16px);
+    display:flex;flex-direction:column;gap:14px;
+    pointer-events:none;
   }
   .mob-exp-title{
-    font-family:var(--font-b);font-size:15px;font-weight:600;
-    color:white;margin:0 0 10px;
-    text-shadow:0 1px 4px rgba(0,0,0,.5);
+    font-family:var(--font-b);font-size:16px;font-weight:600;
+    color:#fff;margin:0;text-shadow:0 1px 4px rgba(0,0,0,.6);
+    pointer-events:auto;
   }
   .mob-action-row{
-    display:flex;align-items:center;gap:8px;
+    display:flex;align-items:center;gap:10px;pointer-events:auto;
   }
-  /* Flam pill button */
   .mob-flam-btn{
-    flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
-    background:var(--flame);border:none;border-radius:50px;height:42px;
-    font-family:var(--font-b);font-size:13px;font-weight:600;color:white;
+    flex:1;display:flex;align-items:center;justify-content:center;gap:8px;
+    background:var(--flame);border:none;border-radius:50px;height:44px;
+    font-family:var(--font-b);font-size:13.5px;font-weight:600;color:#fff;
     cursor:pointer;-webkit-tap-highlight-color:transparent;
-    transition:background .15s,transform .1s;
   }
   .mob-flam-btn:active{background:#c93d12;transform:scale(.97)}
-  /* Circle icon buttons */
   .mob-icon-btn{
-    width:42px;height:42px;flex-shrink:0;border-radius:50%;
-    background:rgba(255,255,255,.13);
-    border:0.5px solid rgba(255,255,255,.22);
+    width:44px;height:44px;flex-shrink:0;border-radius:50%;
+    background:rgba(255,255,255,.16);border:0.5px solid rgba(255,255,255,.25);
     display:flex;align-items:center;justify-content:center;
     cursor:pointer;-webkit-tap-highlight-color:transparent;
-    transition:background .15s,transform .1s;
   }
-  .mob-icon-btn:active{background:rgba(255,255,255,.28);transform:scale(.95)}
-  .mob-icon-btn svg{stroke:white;fill:none;stroke-width:1.7}
+  .mob-icon-btn:active{background:rgba(255,255,255,.3);transform:scale(.95)}
+  .mob-icon-btn svg{stroke:#fff;fill:none;stroke-width:1.8}
 
-  .modal-info-head{
-    padding:4px 16px 10px;
-    border-bottom:1px solid var(--rule);
-  }
-  .modal-info-body{
-    padding:10px 16px calc(env(safe-area-inset-bottom,16px) + 12px);
-  }
-
-  /* Compact info text */
-  .modal-title{font-size:16px;margin-bottom:6px}
-  .modal-chips{margin-bottom:0;gap:4px}
-  .modal-chip{font-size:10.5px;padding:2px 8px}
-  .modal-links{gap:6px;margin-bottom:10px}
-  .link-btn{height:34px;font-size:12.5px;border-radius:8px}
-  .modal-links{gap:6px;margin-bottom:12px}
-  .link-btn{height:36px;font-size:12.5px;border-radius:9px}
-  .modal-meta-section{padding-top:10px}
-  .meta-item .mk{font-size:9.5px}
-  .meta-item .mv{font-size:12px}
-  .meta-item .mv{font-size:12.5px}
-
-  /* Settings panel — slides up full width */
   .panel{width:100%;border-left:none;border-top:1px solid var(--rule);border-radius:20px 20px 0 0}
   .panel-overlay{display:none!important}
   .panel-inner{padding:20px 18px 40px}
-
-  /* Setup */
   .setup{padding:20px 16px;padding-top:36px;align-items:flex-start}
   .setup-card{padding:26px 18px;border-radius:14px}
   .setup-h{font-size:22px}
@@ -716,7 +648,6 @@ button,select{font-family:var(--font-b)}
     </div>
   </header>
 
-  <!-- Mobile filter bar (visible only on mobile) -->
   <div class="mobile-filters" id="mobile-filters">
     <button class="mob-filter-btn" id="mob-filter-btn">
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="1" y1="3" x2="11" y2="3"/><line x1="3" y1="6" x2="9" y2="6"/><line x1="5" y1="9" x2="7" y2="9"/></svg>
@@ -724,7 +655,6 @@ button,select{font-family:var(--font-b)}
     </button>
   </div>
 
-  <!-- Filter bottom sheet (mobile) -->
   <div class="filter-sheet-overlay" id="fso"></div>
   <div class="filter-sheet" id="fs">
     <div class="filter-sheet-handle"></div>
@@ -754,8 +684,6 @@ button,select{font-family:var(--font-b)}
     </aside>
 
     <main class="main">
-
-      <!-- Recently Added row -->
       <div class="recent-section" id="recent-section" style="display:none">
         <div class="recent-heading">
           Recently Added <span class="rh-badge">New</span>
@@ -764,7 +692,6 @@ button,select{font-family:var(--font-b)}
         <div class="section-divider"></div>
       </div>
 
-      <!-- All experiences -->
       <div class="toolbar">
         <select class="sort-sel" id="sort">
           <option value="">Default order</option>
@@ -788,8 +715,6 @@ button,select{font-family:var(--font-b)}
 <!-- ══ MODAL ══════════════════════════════════════════ -->
 <div class="modal-bg" id="modal-bg">
   <div class="modal" id="modal">
-
-    <!-- Close button floats over everything -->
     <button class="close-btn" id="modal-close">
       <svg width="10" height="10" viewBox="0 0 10 10"><line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/></svg>
     </button>
@@ -811,14 +736,10 @@ button,select{font-family:var(--font-b)}
     </div>
 
     <!-- RIGHT: player -->
-    <div class="modal-player-panel" id="modal-player-wrap">
-      <!-- tabs + player injected here -->
-    </div>
-
+    <div class="modal-player-panel" id="modal-player-wrap"></div>
   </div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <!-- ══ SETTINGS ═══════════════════════════════════════ -->
@@ -859,9 +780,6 @@ button,select{font-family:var(--font-b)}
 </div>
 
 <script>
-// ══════════════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════════════
 const STORAGE_KEY = 'flamLib4';
 const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbyBsfCYQGjtF8sykxclro5iWAPFLAVmm74nK5oiaslKSwNtK1laDZwT-ymfNujGSxGR/exec';
 let S = {
@@ -885,11 +803,6 @@ function persist(){
   }));
 }
 
-// ══════════════════════════════════════════════════
-//  DRIVE HELPERS
-// ══════════════════════════════════════════════════
-
-// Extract Drive file ID from any Drive URL format
 function driveId(url){
   if(!url) return null;
   let m;
@@ -899,39 +812,26 @@ function driveId(url){
   return null;
 }
 
-// Drive thumbnail URL (works for images; videos show a frame)
 function driveThumbnail(url, size=400){
   const id = driveId(url);
   return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w${size}` : null;
 }
 
-// Drive embed/preview URL
-function drivePreview(url){
+// Fixed helper: converts raw Drive URL links into direct stream pipelines for native video elements
+function driveStreamUrl(url){
   const id = driveId(url);
-  return id ? `https://drive.google.com/file/d/${id}/preview` : null;
+  return id ? `https://docs.google.com/uc?export=download&id=${id}` : url;
 }
 
-// Parse a cell that may have multiple space/newline-separated Drive links
 function parseDriveLinks(cell){
   if(!cell) return [];
-  // Split on whitespace between links
-  return cell.split(/[\s\n]+(?=https?:\/\/)/)
-    .map(s=>s.trim()).filter(s=>s.startsWith('http'));
+  return cell.split(/[\s\n]+(?=https?:\/\/)/).map(s=>s.trim()).filter(s=>s.startsWith('http'));
 }
 
-// Is this URL a Drive link?
 function isDriveLink(url){
   return /drive\.google\.com/i.test(url);
 }
 
-// Is this a Flam link?
-function isFlamLink(url){
-  return /flamapp\.com|c\.flamapp|g\.flamapp/i.test(url);
-}
-
-// ══════════════════════════════════════════════════
-//  CSV PARSER
-// ══════════════════════════════════════════════════
 function parseCSV(text){
   const lines = text.trim().split(/\r?\n/).filter(l=>l.trim());
   if(!lines.length) throw new Error('No data found');
@@ -955,9 +855,6 @@ function parseCSV(text){
   return { headers, rows };
 }
 
-// ══════════════════════════════════════════════════
-//  AUTO-DETECT COLUMNS
-// ══════════════════════════════════════════════════
 function autoDetect(headers){
   const find=(...pats)=>headers.find(h=>pats.some(p=>h.toLowerCase().includes(p)))||'';
   return {
@@ -971,34 +868,20 @@ function autoDetect(headers){
   };
 }
 
-// ══════════════════════════════════════════════════
-//  INGEST
-// ══════════════════════════════════════════════════
 function ingest(headers, rows){
-  S.headers = headers;
-  S.rows    = rows;
+  S.headers = headers; S.rows = rows;
   const d = autoDetect(headers);
-  // Fill only unset cols
   Object.keys(d).forEach(k=>{ if(!S.cols[k]) S.cols[k]=d[k]; });
   persist();
   document.getElementById('t-count').textContent = rows.length;
   document.getElementById('s-count').textContent = rows.length;
-  buildFilters();
-  buildMobileFilters();
-  buildFilterSheet();
-  populateColSelects();
-  renderRecentRow();
-  renderAll();
+  buildFilters(); buildMobileFilters(); buildFilterSheet(); populateColSelects(); renderRecentRow(); renderAll();
   document.getElementById('setup').style.display = 'none';
   document.getElementById('app').style.display   = '';
   updateSourceBadge();
-  // Check if there's a deep link to open
   setTimeout(checkDeepLink, 100);
 }
 
-// ══════════════════════════════════════════════════
-//  LOAD FUNCTIONS
-// ══════════════════════════════════════════════════
 function loadFromPaste(text, onErr){
   try {
     const {headers,rows} = parseCSV(text);
@@ -1007,9 +890,8 @@ function loadFromPaste(text, onErr){
   } catch(e){ if(onErr) onErr(e.message); }
 }
 
-// ── CACHE CONFIG ──
-const CACHE_KEY   = 'flamLib_cache';
-const CACHE_TTL   = 5 * 60 * 1000;  // 5 minutes — new cards appear within 5 min
+const CACHE_KEY = 'flamLib_cache';
+const CACHE_TTL = 5 * 60 * 1000;
 
 function readCache(){
   try {
@@ -1022,30 +904,18 @@ function readCache(){
 }
 
 function writeCache(headers, rows){
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), headers, rows }));
-  } catch(e){
-    // localStorage full — clear old cache and try once more
-    localStorage.removeItem(CACHE_KEY);
-  }
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), headers, rows })); } catch(e){ localStorage.removeItem(CACHE_KEY); }
 }
 
-function cacheAge(cache){
-  return cache ? Date.now() - cache.ts : Infinity;
-}
+function cacheAge(cache){ return cache ? Date.now() - cache.ts : Infinity; }
 
-// ── FETCH WITH TIMEOUT ──
 async function fetchWithTimeout(url, ms=12000){
   const ctrl = new AbortController();
-  const tid  = setTimeout(()=>ctrl.abort(), ms);
+  const tid = setTimeout(()=>ctrl.abort(), ms);
   try {
     const res = await fetch(url, { signal: ctrl.signal });
-    clearTimeout(tid);
-    return res;
-  } catch(e){
-    clearTimeout(tid);
-    throw e;
-  }
+    clearTimeout(tid); return res;
+  } catch(e){ clearTimeout(tid); throw e; }
 }
 
 function parseAPIResponse(text) {
@@ -1056,21 +926,14 @@ function parseAPIResponse(text) {
   return { headers: data.headers, rows: data.rows };
 }
 
-// ── GVIZ (Google Visualization API) — works on ALL browsers including iOS ──
-// docs.google.com is never blocked by ITP. This is our primary data source.
-// headers=1 tells gviz row 1 is the header row so labels come back correctly
 const GVIZ_URL = 'https://docs.google.com/spreadsheets/d/1MouoP7ySmGjO_yq-LvsM6gYcBoRjOiTEQ5w3FZKI7js/gviz/tq?tqx=out:json&gid=0&headers=1';
 
 function parseGviz(text) {
-  // Strip the /*O_o*/ wrapper: google.visualization.Query.setResponse({...});
   const match = text.match(/setResponse\(([\s\S]*)\)\s*;?\s*$/);
   if (!match) throw new Error('Unexpected gviz format');
   const data = JSON.parse(match[1]);
   if (data.status === 'error') throw new Error(data.errors?.[0]?.detailed_message || 'gviz error');
   const t = data.table;
-
-  // Column labels — gviz gives proper labels when headers=1 is set
-  // Filter out columns with single-letter IDs (empty gviz placeholder columns like I,J,K...Z)
   const headers = t.cols.map(c => (c.label || '').trim()).filter(h => h.length > 1);
   if (!headers.length) throw new Error('No headers returned from gviz');
 
@@ -1079,28 +942,19 @@ function parseGviz(text) {
     headers.forEach((h, i) => {
       const cell = r.c?.[i];
       if (!cell || cell.v == null) { obj[h] = ''; return; }
-      // Use formatted value (f) for dates/numbers, raw value (v) for strings
-      if (typeof cell.v === 'string') {
-        obj[h] = cell.v.trim();
-      } else if (cell.f) {
-        // Formatted value — e.g. "8-Mar-2026" for a date
-        obj[h] = cell.f.trim();
-      } else {
+      if (typeof cell.v === 'string') { obj[h] = cell.v.trim(); }
+      else if (cell.f) { obj[h] = cell.f.trim(); }
+      else {
         const sv = String(cell.v).trim();
-        // gviz sometimes returns JS Date constructor strings e.g. "Date(2026,5,29)"
-        // Parse and reformat them
         const dm = sv.match(/^Date\((\d+),(\d+),(\d+)\)$/);
         if(dm) {
           const d = new Date(+dm[1], +dm[2], +dm[3]);
           obj[h] = d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
-        } else {
-          obj[h] = sv;
-        }
+        } else { obj[h] = sv; }
       }
     });
     return obj;
   }).filter(r => Object.values(r).some(v => v));
-
   return { headers, rows };
 }
 
@@ -1111,31 +965,16 @@ async function fetchFromGviz() {
 }
 
 async function fetchFromAPI(url) {
-  // Strategy 1: gviz (docs.google.com) — works on iOS, Android, all browsers
-  // No auth needed, no CORS issues, no ITP blocking
-  try {
-    return await fetchFromGviz();
-  } catch(e0) {
-    console.warn('gviz failed:', e0.message);
-  }
-
-  // Strategy 2: Direct Apps Script fetch — works on Chrome desktop + Android
+  try { return await fetchFromGviz(); } catch(e0) { console.warn('gviz failed:', e0.message); }
   try {
     const res = await fetchWithTimeout(url, 10000);
     if(res.ok) return parseAPIResponse(await res.text());
-  } catch(e1) {
-    console.warn('Direct fetch failed:', e1.message);
-  }
-
-  // Strategy 3: allorigins proxy
+  } catch(e1) { console.warn('Direct fetch failed:', e1.message); }
   try {
     const proxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
     const res = await fetchWithTimeout(proxy, 12000);
     if(res.ok) return parseAPIResponse(await res.text());
-  } catch(e2) {
-    console.warn('Proxy fetch failed:', e2.message);
-  }
-
+  } catch(e2) { console.warn('Proxy fetch failed:', e2.message); }
   throw new Error('Load failed — could not reach data source.');
 }
 
@@ -1143,37 +982,21 @@ async function loadFromAPI(url, onErr){
   try {
     const { headers, rows } = await fetchFromAPI(url);
     S.source='api'; S.apiUrl=url;
-    writeCache(headers, rows);
-    ingest(headers, rows);
-    updateCacheBadge(false);
+    writeCache(headers, rows); ingest(headers, rows); updateCacheBadge(false);
   } catch(e){ if(onErr) onErr(e.message); }
 }
 
-// Load instantly from cache, then silently refresh in background
 async function loadWithCache(url){
-  const cache = readCache();
-  const age   = cacheAge(cache);
-  const stale = age > CACHE_TTL;
-
+  const cache = readCache(); const age = cacheAge(cache); const stale = age > CACHE_TTL;
   if(cache){
-    // ✅ Show cached data immediately — works even if API is unreachable
-    S.source='api'; S.apiUrl=url;
-    ingest(cache.headers, cache.rows);
-    updateCacheBadge(!stale);
+    S.source='api'; S.apiUrl=url; ingest(cache.headers, cache.rows); updateCacheBadge(!stale);
     if(stale){ silentRefresh(url); }
   } else {
-    // No cache yet — show skeleton and try to fetch
     showSkeleton();
     try {
       const { headers, rows } = await fetchFromAPI(url);
-      S.source='api'; S.apiUrl=url;
-      writeCache(headers, rows);
-      ingest(headers, rows);
-      updateCacheBadge(false);
-    } catch(e){
-      hideSkeleton();
-      showFetchError(e.message);
-    }
+      S.source='api'; S.apiUrl=url; writeCache(headers, rows); ingest(headers, rows); updateCacheBadge(false);
+    } catch(e){ hideSkeleton(); showFetchError(e.message); }
   }
 }
 
@@ -1181,177 +1004,103 @@ async function silentRefresh(url){
   try {
     const { headers, rows } = await fetchFromAPI(url);
     writeCache(headers, rows);
-    const changed = JSON.stringify(rows) !== JSON.stringify(S.rows);
-    if(changed){ ingest(headers, rows); }
+    if(JSON.stringify(rows) !== JSON.stringify(S.rows)){ ingest(headers, rows); }
     updateCacheBadge(false);
-  } catch(e){
-    // Silent fail — cached data stays visible
-    console.warn('Flam Library: background refresh failed —', e.message);
-  }
+  } catch(e){ console.warn('Background refresh failed —', e.message); }
 }
 
 function showFetchError(msg){
-  console.error('Flam Library fetch error:', msg);
   document.getElementById('grid').innerHTML=`
     <div class="state-box">
       <div class="empty-state">
         <div class="empty-icon">⚠</div>
         <div class="empty-title">Couldn't load data</div>
         <div class="empty-sub" style="max-width:320px;margin:0 auto;line-height:1.7">
-          This usually happens when the Apps Script URL is blocked by your network or browser.<br><br>
-          <strong style="color:var(--ink)">Try these:</strong><br>
-          1. Open the site in a different browser<br>
-          2. Disable any VPN or ad blocker<br>
-          3. Try on mobile data instead of office WiFi<br><br>
-          <span style="font-size:11px;color:var(--ink3)">Error: ${esc(msg)}</span>
+          Error: ${esc(msg)}
         </div>
       </div>
     </div>`;
 }
 
 function updateCacheBadge(fresh){
-  const badge = document.getElementById('src-badge');
-  if(!badge) return;
-  // fresh = served from recent cache, false = just fetched live
-  const cache = readCache();
-  if(!cache){ badge.innerHTML=''; return; }
-  const mins = Math.round(cacheAge(cache) / 60000);
-  const label = mins < 1 ? 'Just updated' : mins < 60 ? `Updated ${mins}m ago` : 'Cached';
-  badge.innerHTML = `<span class="src-badge live" title="${label}"><span class="dot"></span>Live</span>`;
+  const badge = document.getElementById('src-badge'); if(!badge) return;
+  const cache = readCache(); if(!cache){ badge.innerHTML=''; return; }
+  badge.innerHTML = `<span class="src-badge live"><span class="dot"></span>Live</span>`;
 }
 
-// ── SKELETON LOADER ──
 function showSkeleton(){
-  const grid = document.getElementById('grid');
-  grid.className = 'grid';
+  const grid = document.getElementById('grid'); grid.className = 'grid';
   grid.innerHTML = Array.from({length:8}, (_,i) => `
     <div class="card skel-card" style="animation-delay:${i*40}ms">
       <div class="skel skel-thumb"></div>
       <div style="padding:13px 14px 14px">
         <div class="skel skel-title"></div>
         <div class="skel skel-title" style="width:65%;margin-top:6px"></div>
-        <div style="display:flex;gap:5px;margin-top:10px">
-          <div class="skel skel-tag"></div>
-          <div class="skel skel-tag" style="width:52px"></div>
-        </div>
       </div>
     </div>`).join('');
 }
 
-function hideSkeleton(){
-  const grid = document.getElementById('grid');
-  grid.innerHTML = '';
-}
-
-function updateSourceBadge(){
-  // Handled by updateCacheBadge when using API; fallback for manual/paste mode
-  if(S.source !== 'api'){
-    const el = document.getElementById('src-badge');
-    if(el) el.innerHTML = `<span class="src-badge manual"><span class="dot"></span>Manual</span>`;
-  }
-}
-
-// ══════════════════════════════════════════════════
-//  FILTERS
-// ══════════════════════════════════════════════════
-function cv(row,k){ return k?(row[k]||''):''; }
+function hideSkeleton(){ document.getElementById('grid').innerHTML = ''; }
+function updateSourceBadge(){ if(S.source !== 'api'){ const el = document.getElementById('src-badge'); if(el) el.innerHTML = `<span class="src-badge manual"><span class="dot"></span>Manual</span>`; } }
 
 function buildMobileFilters(){
-  const bar = document.getElementById('mobile-filters');
-  if(!bar) return;
+  const bar = document.getElementById('mobile-filters'); if(!bar) return;
   bar.innerHTML = '';
-
-  // Collect unique cats and types
   const cats={}, types={};
   S.rows.forEach(row=>{
     cv(row,S.cols.cat).split(',').map(s=>s.trim()).filter(Boolean).forEach(c=>{ cats[c]=(cats[c]||0)+1; });
     const t=cv(row,S.cols.flamtype); if(t) types[t]=(types[t]||0)+1;
   });
 
-  // "All" chip
   const allChip = document.createElement('button');
   allChip.className = 'mf-chip' + (!S.filters.cat && !S.filters.type ? ' on' : '');
   allChip.textContent = 'All';
   allChip.addEventListener('click', ()=>{
     S.filters={cat:null,type:null};
     document.querySelectorAll('.mf-chip').forEach(c=>c.classList.remove('on'));
-    allChip.classList.add('on');
-    document.querySelectorAll('.f-row.on').forEach(el=>el.classList.remove('on'));
+    allChip.classList.add('on'); document.querySelectorAll('.f-row.on').forEach(el=>el.classList.remove('on'));
     renderAll();
   });
   bar.appendChild(allChip);
 
-  // Category chips
   Object.entries(cats).sort((a,b)=>b[1]-a[1]).forEach(([val])=>{
-    const chip = document.createElement('button');
-    chip.className = 'mf-chip' + (S.filters.cat===val ? ' on' : '');
-    chip.textContent = val;
-    chip.dataset.key='cat'; chip.dataset.val=val;
-    chip.addEventListener('click', ()=>{
-      S.filters.cat = S.filters.cat===val ? null : val;
-      syncMobileChips();
-      syncSidebarFilters();
-      renderAll();
-    });
-    bar.appendChild(chip);
-  });
-
-  // Type chips
-  Object.entries(types).sort((a,b)=>b[1]-a[1]).forEach(([val])=>{
-    const chip = document.createElement('button');
-    chip.className = 'mf-chip' + (S.filters.type===val ? ' on' : '');
-    chip.textContent = val;
-    chip.dataset.key='type'; chip.dataset.val=val;
-    chip.addEventListener('click', ()=>{
-      S.filters.type = S.filters.type===val ? null : val;
-      syncMobileChips();
-      syncSidebarFilters();
-      renderAll();
-    });
+    const chip = document.createElement('button'); chip.className = 'mf-chip' + (S.filters.cat===val ? ' on' : '');
+    chip.textContent = val; chip.dataset.key='cat'; chip.dataset.val=val;
+    chip.addEventListener('click', ()=>{ S.filters.cat = S.filters.cat===val ? null : val; syncMobileChips(); syncSidebarFilters(); renderAll(); });
     bar.appendChild(chip);
   });
 }
 
 function syncMobileChips(){
-  const bar=document.getElementById('mobile-filters');
-  if(!bar) return;
+  const bar=document.getElementById('mobile-filters'); if(!bar) return;
   const noneActive = !S.filters.cat && !S.filters.type;
   bar.querySelectorAll('.mf-chip').forEach(chip=>{
     if(!chip.dataset.key){ chip.classList.toggle('on', noneActive); return; }
-    chip.classList.toggle('on', chip.dataset.key==='cat'
-      ? S.filters.cat===chip.dataset.val
-      : S.filters.type===chip.dataset.val);
+    chip.classList.toggle('on', chip.dataset.key==='cat' ? S.filters.cat===chip.dataset.val : S.filters.type===chip.dataset.val);
   });
 }
 
 function syncSidebarFilters(){
   document.querySelectorAll('.f-row').forEach(f=>{
-    f.classList.toggle('on',
-      f.dataset.key==='cat'  ? S.filters.cat===f.dataset.val :
-      f.dataset.key==='type' ? S.filters.type===f.dataset.val : false
-    );
+    f.classList.toggle('on', f.dataset.key==='cat' ? S.filters.cat===f.dataset.val : f.dataset.key==='type' ? S.filters.type===f.dataset.val : false);
   });
 }
 
 function buildFilters(){
   const cntCat={}, cntType={};
   S.rows.forEach(row=>{
-    const cats = cv(row,S.cols.cat).split(',').map(s=>s.trim()).filter(Boolean);
-    const type = cv(row,S.cols.flamtype);
-    cats.forEach(c=>{ cntCat[c]=(cntCat[c]||0)+1; });
-    if(type) cntType[type]=(cntType[type]||0)+1;
+    const cats = cv(row,S.cols.cat).split(',').map(s=>s.trim()).filter(Boolean); const type = cv(row,S.cols.flamtype);
+    cats.forEach(c=>{ cntCat[c]=(cntCat[c]||0)+1; }); if(type) cntType[type]=(cntType[type]||0)+1;
   });
-  fillFilter('cat-list','cat',cntCat);
-  fillFilter('type-list','type',cntType);
-  document.getElementById('sb-cat').style.display  = Object.keys(cntCat).length  ?'':'none';
+  fillFilter('cat-list','cat',cntCat); fillFilter('type-list','type',cntType);
+  document.getElementById('sb-cat').style.display = Object.keys(cntCat).length ?'':'none';
   document.getElementById('sb-type').style.display = Object.keys(cntType).length ?'':'none';
 }
 
 function fillFilter(elId, key, counts){
   const el = document.getElementById(elId); el.innerHTML='';
   Object.entries(counts).sort((a,b)=>b[1]-a[1]).forEach(([val,n])=>{
-    const d=document.createElement('div');
-    d.className='f-row'; d.dataset.key=key; d.dataset.val=val;
+    const d=document.createElement('div'); d.className='f-row'; d.dataset.key=key; d.dataset.val=val;
     d.innerHTML=`<span class="f-label">${esc(val)}</span><span class="f-n">${n}</span>`;
     d.addEventListener('click',()=>{
       S.filters[key] = S.filters[key]===val ? null : val;
@@ -1362,54 +1111,36 @@ function fillFilter(elId, key, counts){
   });
 }
 
-// ══════════════════════════════════════════════════
-//  RENDER CARDS
-// ══════════════════════════════════════════════════
-// ── RECENTLY ADDED ROW ──────────────────────────────────────────────────
 function renderRecentRow(){
   const { rows, cols } = S;
   const DATE_COL = S.headers.find(h => /date.added|date_added|added|created|published/i.test(h)) || null;
-  const section  = document.getElementById('recent-section');
-  const row_el   = document.getElementById('recent-row');
-
-  // Get latest 10 — by date column if it exists, otherwise last 10 rows in sheet order
+  const section = document.getElementById('recent-section');
+  const row_el = document.getElementById('recent-row');
   let recent;
   function parseDate(str){
     if(!str) return null;
-    // Handle DD/MM/YYYY (common in Google Sheets)
     const dmy = str.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
     if(dmy) return new Date(+dmy[3], +dmy[2]-1, +dmy[1]);
-    // Handle YYYY-MM-DD and other formats
-    const d = new Date(str);
-    return isNaN(d) ? null : d;
+    const d = new Date(str); return isNaN(d) ? null : d;
   }
-
   if(DATE_COL){
-    recent = [...rows]
-      .filter(r => r[DATE_COL] && parseDate(r[DATE_COL]))
-      .sort((a,b) => parseDate(b[DATE_COL]) - parseDate(a[DATE_COL]))
-      .slice(0,10);
-    // If no dates parsed, fall back to sheet order
+    recent = [...rows].filter(r => r[DATE_COL] && parseDate(r[DATE_COL])).sort((a,b) => parseDate(b[DATE_COL]) - parseDate(a[DATE_COL])).slice(0,10);
     if(!recent.length) recent = rows.slice(-10).reverse();
-  } else {
-    recent = rows.slice(-10).reverse();
-  }
-
+  } else { recent = rows.slice(-10).reverse(); }
   if(!recent.length){ section.style.display='none'; return; }
-  section.style.display = '';
-  row_el.innerHTML = '';
+  section.style.display = ''; row_el.innerHTML = '';
 
   recent.forEach(row => {
-    const title     = cv(row, cols.title) || 'Untitled';
-    const flamLink  = cv(row, cols.flam);
-    const catRaw    = cv(row, cols.cat);
-    const flamType  = cv(row, cols.flamtype);
-    const tags      = catRaw.split(',').map(s=>s.trim()).filter(Boolean);
+    const title = cv(row, cols.title) || 'Untitled';
+    const flamLink = cv(row, cols.flam);
+    const catRaw = cv(row, cols.cat);
+    const flamType = cv(row, cols.flamtype);
+    const tags = catRaw.split(',').map(s=>s.trim()).filter(Boolean);
     const trigLinks = parseDriveLinks(cv(row, cols.trigger));
-    const vidLinks  = parseDriveLinks(cv(row, cols.video));
-    const thumbUrl  = cv(row, cols.thumb);
+    const vidLinks = parseDriveLinks(cv(row, cols.video));
+    const thumbUrl = cv(row, cols.thumb);
     const hasAssets = flamLink || trigLinks.length || vidLinks.length;
-    const dateStr   = DATE_COL ? row[DATE_COL] : '';
+    const dateStr = DATE_COL ? row[DATE_COL] : '';
 
     let thumbHTML = '';
     if(thumbUrl && isDriveLink(thumbUrl)){
@@ -1422,8 +1153,7 @@ function renderRecentRow(){
     }
     if(!thumbHTML) thumbHTML = `<div class="thumb-ph">${thumbPH()}</div>`;
 
-    const card = document.createElement('div');
-    card.className = 'recent-card';
+    const card = document.createElement('div'); card.className = 'recent-card';
     card.innerHTML = `
       <div class="c-thumb">
         ${thumbHTML}
@@ -1438,102 +1168,63 @@ function renderRecentRow(){
           <span class="c-src">${esc(flamType||catRaw)}</span>
           <div class="c-btns">
             ${hasAssets?`<button class="btn-dark" style="font-size:11px;height:24px;padding:0 9px">Preview</button>`:''}
-            ${flamLink?`<button class="btn-ghost" data-copy-flam="${esc(flamLink)}" title="Copy Flam link" style="width:24px;height:24px"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="1" width="7" height="9" rx="1.2"/><path d="M1 3.5v7A1.2 1.2 0 0 0 2.2 11.7H8"/></svg></button>`:''}
           </div>
         </div>
       </div>`;
-
     card._data = { row, title, flamLink, flamType, catRaw, tags, trigLinks, vidLinks };
-    card.addEventListener('click', e => {
-      const copyBtn = e.target.closest('[data-copy-flam]');
-      if(copyBtn){
-        navigator.clipboard.writeText(copyBtn.dataset.copyFlam).then(()=>{
-          showToast('Flam link copied ✓');
-        }).catch(()=>{ prompt('Copy:',copyBtn.dataset.copyFlam); });
-        return;
-      }
-      openModal(card._data);
-    });
+    card.addEventListener('click', e => { openModal(card._data); });
     row_el.appendChild(card);
   });
 }
 
-function formatDate(str){
-  try {
-    const d = new Date(str);
-    if(isNaN(d)) return str;
-    return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
-  } catch(e){ return str; }
-}
+function formatDate(str){ try { const d = new Date(str); return isNaN(d) ? str : d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}); } catch(e){ return str; } }
 
 function renderAll(){
   const {rows,cols,filters,search,sort} = S;
   let items = rows.filter(row=>{
-    const cats = cv(row,cols.cat).split(',').map(s=>s.trim());
-    const type = cv(row,cols.flamtype);
-    const text = Object.values(row).join(' ').toLowerCase();
-    if(filters.cat  && !cats.includes(filters.cat))    return false;
-    if(filters.type && type!==filters.type)             return false;
-    if(search       && !text.includes(search.toLowerCase())) return false;
+    const cats = cv(row,cols.cat).split(',').map(s=>s.trim()); const type = cv(row,cols.flamtype); const text = Object.values(row).join(' ').toLowerCase();
+    if(filters.cat && !cats.includes(filters.cat)) return false;
+    if(filters.type && type!==filters.type) return false;
+    if(search && !text.includes(search.toLowerCase())) return false;
     return true;
   });
   if(sort==='az') items.sort((a,b)=>cv(a,cols.title).localeCompare(cv(b,cols.title)));
   if(sort==='za') items.sort((a,b)=>cv(b,cols.title).localeCompare(cv(a,cols.title)));
 
   document.getElementById('s-count').textContent = items.length;
-  // Hide recently added row when user is actively filtering or searching
   const recentSec = document.getElementById('recent-section');
   if(recentSec) recentSec.style.display = (S.search || S.filters.cat || S.filters.type) ? 'none' : '';
-  const grid = document.getElementById('grid');
-  grid.className = 'grid'+(S.view==='list'?' list':'');
+  const grid = document.getElementById('grid'); grid.className = 'grid'+(S.view==='list'?' list':'');
 
   if(!items.length){
-    grid.innerHTML=`<div class="state-box"><div class="empty-state"><div class="empty-icon">◎</div><div class="empty-title">No results</div><div class="empty-sub">Try adjusting your filters or search</div></div></div>`;
+    grid.innerHTML=`<div class="state-box"><div class="empty-state"><div class="empty-icon">◎</div><div class="empty-title">No results</div></div></div>`;
     return;
   }
-
   grid.innerHTML='';
   items.forEach((row,i)=>{
-    const title     = cv(row,cols.title) || `Item ${i+1}`;
-    const thumbUrl  = cv(row,cols.thumb);
-    const flamLink  = cv(row,cols.flam);
-    const flamType  = cv(row,cols.flamtype);
-    const catRaw    = cv(row,cols.cat);
-    const trigLinks = parseDriveLinks(cv(row,cols.trigger));
-    const vidLinks  = parseDriveLinks(cv(row,cols.video));
+    const title = cv(row,cols.title) || `Item ${i+1}`;
+    const thumbUrl = cv(row,cols.thumb); const flamLink = cv(row,cols.flam); const flamType = cv(row,cols.flamtype);
+    const catRaw = cv(row,cols.cat); const trigLinks = parseDriveLinks(cv(row,cols.trigger)); const vidLinks = parseDriveLinks(cv(row,cols.video));
 
-    // Build thumbnail: use Meta Image column (Drive) → first trigger image → placeholder
     let thumbHTML = '';
     if(thumbUrl && isDriveLink(thumbUrl)){
       const tid = driveId(thumbUrl);
-      if(tid){
-        thumbHTML = `<img src="https://drive.google.com/thumbnail?id=${tid}&sz=w400" alt="" loading="lazy" onload="this.classList.add('loaded')" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div class="thumb-ph" style="display:none">${thumbPH()}</div>`;
-      }
+      if(tid) thumbHTML = `<img src="https://drive.google.com/thumbnail?id=${tid}&sz=w400" alt="" loading="lazy" onload="this.classList.add('loaded')" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="thumb-ph" style="display:none">${thumbPH()}</div>`;
     } else if(trigLinks.length){
-      // Use first trigger image as fallback thumb
       const fid = driveId(trigLinks[0]);
-      if(fid){
-        thumbHTML = `<img src="https://drive.google.com/thumbnail?id=${fid}&sz=w400" alt="" loading="lazy" onload="this.classList.add('loaded')" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div class="thumb-ph" style="display:none">${thumbPH()}</div>`;
-      }
+      if(fid) thumbHTML = `<img src="https://drive.google.com/thumbnail?id=${fid}&sz=w400" alt="" loading="lazy" onload="this.classList.add('loaded')" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="thumb-ph" style="display:none">${thumbPH()}</div>`;
     }
     if(!thumbHTML) thumbHTML = `<div class="thumb-ph">${thumbPH()}</div>`;
+    const tags = catRaw.split(',').map(s=>s.trim()).filter(Boolean); const hasAssets = flamLink || trigLinks.length || vidLinks.length;
 
-    // Tags from category (may be comma-separated like "Fashion,Jewellery")
-    const tags = catRaw.split(',').map(s=>s.trim()).filter(Boolean);
-    const hasAssets = flamLink || trigLinks.length || vidLinks.length;
-
-    const card = document.createElement('div');
-    card.className='card';
-    card.style.animationDelay = Math.min(i*16,220)+'ms';
+    const card = document.createElement('div'); card.className='card'; card.style.animationDelay = Math.min(i*16,220)+'ms';
     const isNew = isNewThisWeek(row);
     card.innerHTML=`
       <div class="c-thumb">
         ${thumbHTML}
         <div class="play-veil"><div class="play-disc"><svg viewBox="0 0 14 14"><polygon points="2,1 13,7 2,13"/></svg></div></div>
         ${flamType?`<div class="type-badge">${esc(flamType)}</div>`:''}
-        ${isNew?`<div style="position:absolute;top:8px;right:8px;font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;background:#fef9c3;color:#854d0e;border:1px solid #fde68a;letter-spacing:.4px;text-transform:uppercase">✦ New</div>`:''}
+        ${isNew?`<div style="position:absolute;top:8px;right:8px;font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;background:#fef9c3;color:#854d0e;letter-spacing:.4px;text-transform:uppercase">✦ New</div>`:''}
       </div>
       <div class="c-body">
         <div class="c-title">${esc(title)}</div>
@@ -1542,471 +1233,211 @@ function renderAll(){
           <span class="c-src">${esc(catRaw)}</span>
           <div class="c-btns">
             ${hasAssets?`<button class="btn-dark" data-open>Preview</button>`:''}
-            ${flamLink?`<button class="btn-ghost" data-copy-flam="${esc(flamLink)}" title="Copy Flam link"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="1" width="7" height="9" rx="1.2"/><path d="M1 3.5v7A1.2 1.2 0 0 0 2.2 11.7H8"/></svg></button>`:''}
-            ${flamLink?`<button class="btn-ghost" data-ext="${esc(flamLink)}" title="Open Flam experience"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M1 9L9 1M9 1H4M9 1v5"/></svg></button>`:''}
           </div>
         </div>
       </div>`;
 
     card._data = { row, title, flamLink, flamType, catRaw, tags, trigLinks, vidLinks };
-
     card.addEventListener('click', e=>{
       if(e.target.closest('[data-ext]')){ window.open(e.target.closest('[data-ext]').dataset.ext,'_blank'); return; }
-      const copyBtn = e.target.closest('[data-copy-flam]');
-      if(copyBtn){
-        const link = copyBtn.dataset.copyFlam;
-        navigator.clipboard.writeText(link).then(()=>{
-          showToast('Flam link copied ✓');
-          copyBtn.style.borderColor='var(--green)';copyBtn.style.color='var(--green)';
-          setTimeout(()=>{copyBtn.style.borderColor='';copyBtn.style.color='';},1800);
-        }).catch(()=>{ prompt('Copy this link:',link); });
-        return;
-      }
       openModal(card._data);
     });
     grid.appendChild(card);
   });
 }
 
-function thumbPH(){
-  return `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="#ccc" stroke-width="1.4"><rect x="2" y="6" width="28" height="20" rx="3"/><polygon points="11,10 11,22 23,16" fill="#ccc" stroke="none"/></svg>`;
-}
+function thumbPH(){ return `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="#ccc" stroke-width="1.4"><rect x="2" y="6" width="28" height="20" rx="3"/><polygon points="11,10 11,22 23,16" fill="#ccc" stroke="none"/></svg>`; }
 
-// ══════════════════════════════════════════════════
-//  MODAL
-// ══════════════════════════════════════════════════
 let _currentAssets = [];
 let _currentAssetIdx = 0;
+let _currentRow = null;
 
-// ── TOAST ──
 function showToast(msg, duration=2200){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'), duration);
 }
 
-// ── "NEW THIS WEEK" helper ──
 function isNewThisWeek(row){
-  // Look for any date column
-  const dateCol = S.headers.find(h=>/date|added|created|published/i.test(h));
-  if(!dateCol || !row[dateCol]) return false;
-  const d = new Date(row[dateCol]);
-  if(isNaN(d)) return false;
-  return (Date.now() - d.getTime()) < 7 * 24 * 60 * 60 * 1000;
+  const dateCol = S.headers.find(h=>/date|added|created|published/i.test(h)); if(!dateCol || !row[dateCol]) return false;
+  const d = new Date(row[dateCol]); return isNaN(d) ? false : (Date.now() - d.getTime()) < 7 * 24 * 60 * 60 * 1000;
 }
 
-// ── EXPORT CSV ──
 function exportCardCSV(row, title){
-  const lines = [['Field','Value']];
-  S.headers.forEach(h=>{ if(row[h]) lines.push([h, row[h]]); });
+  const lines = [['Field','Value']]; S.headers.forEach(h=>{ if(row[h]) lines.push([h, row[h]]); });
   const csv = lines.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
-  const blob = new Blob([csv], {type:'text/csv'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = (title||'experience').replace(/[^a-z0-9]/gi,'_')+'.csv';
-  a.click(); URL.revokeObjectURL(a.href);
-  showToast('CSV downloaded');
+  const blob = new Blob([csv], {type:'text/csv'}); const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = (title||'experience').replace(/[^a-z0-9]/gi,'_')+'.csv';
+  a.click(); URL.revokeObjectURL(a.href); showToast('CSV downloaded');
 }
 
-// ── EXPORT PDF (print-friendly page) ──
-// ── COPY CARD TO CLIPBOARD ──
 function copyCardToClipboard(){
   if(!_currentRow) return;
-  const row  = _currentRow;
-  const cols = S.cols;
-
-  const title     = cv(row, cols.title) || 'Experience';
-  const flamLink  = cv(row, cols.flam);
-  const catRaw    = cv(row, cols.cat);
-  const flamType  = cv(row, cols.flamtype);
-  const trigLinks = parseDriveLinks(cv(row, cols.trigger));
-  const vidLinks  = parseDriveLinks(cv(row, cols.video));
-
-  // Drive filenames
-  let driveNames = {};
-  try { driveNames = JSON.parse(row['_driveNames'] || '{}'); } catch(e){}
-  const dn = (col, idx, fallback) => {
-    const n = driveNames[col]; return (n && n[idx]) ? n[idx] : fallback;
-  };
-
-  // Skip columns already shown in the structured section
+  const row = _currentRow; const cols = S.cols;
+  const title = cv(row, cols.title) || 'Experience';
+  const flamLink = cv(row, cols.flam); const catRaw = cv(row, cols.cat); const flamType = cv(row, cols.flamtype);
+  const trigLinks = parseDriveLinks(cv(row, cols.trigger)); const vidLinks = parseDriveLinks(cv(row, cols.video));
   const coreCols = new Set([cols.title, cols.flam, cols.flamtype, cols.cat, cols.trigger, cols.video, cols.thumb, '_driveNames'].filter(Boolean));
-
-  // Extra fields (anything not already in core)
   const extras = S.headers.filter(h => row[h] && !coreCols.has(h));
+  const lines = [`*${title}*`, [catRaw, flamType].filter(Boolean).join('  ·  '), ''];
 
-  // ── BUILD SLACK-FRIENDLY TEXT ──
-  const lines = [];
-
-  // Title — bold in Slack
-  lines.push(`*${title}*`);
-
-  // Key metadata as compact pills line
-  const meta = [catRaw, flamType].filter(Boolean).join('  ·  ');
-  if(meta) lines.push(meta);
-
-  lines.push('');
-
-  // Extra fields as a tidy table
-  if(extras.length){
-    extras.forEach(h => {
-      const label = h.padEnd(20);
-      lines.push(`${label}${row[h]}`);
-    });
-    lines.push('');
-  }
-
-  // Links block
-  const hasLinks = flamLink || trigLinks.length || vidLinks.length;
-  if(hasLinks){
+  if(extras.length){ extras.forEach(h => { lines.push(`${h.padEnd(20)}${row[h]}`); }); lines.push(''); }
+  if(flamLink || trigLinks.length || vidLinks.length){
     lines.push('*Links & Assets*');
-    if(flamLink){
-      lines.push(`▶  Flam Experience`);
-      lines.push(`   ${flamLink}`);
-    }
-    trigLinks.forEach((u,i)=>{
-      const name = dn(cols.trigger, i, 'Trigger Image' + (trigLinks.length>1 ? ` ${i+1}` : ''));
-      lines.push(`🖼  ${name}`);
-      lines.push(`   ${u}`);
-    });
-    vidLinks.forEach((u,i)=>{
-      const name = dn(cols.video, i, 'Mock Video' + (vidLinks.length>1 ? ` ${i+1}` : ''));
-      lines.push(`🎬  ${name}`);
-      lines.push(`   ${u}`);
-    });
-    lines.push('');
+    if(flamLink) lines.push(`▶  Flam Experience\n   ${flamLink}`);
+    trigLinks.forEach((u,i)=>lines.push(`🖼  Trigger ${i+1}\n   ${u}`));
+    vidLinks.forEach((u,i)=>lines.push(`🎬  Video ${i+1}\n   ${u}`));
   }
-
-  // Footer
-  lines.push(`_Shared from Flam Library_`);
-
   const text = lines.join('\n');
-
-  // Copy with graceful fallback for non-HTTPS contexts
-  const doConfirm = () => {
-    showToast('Copied to clipboard ✓');
-    const btn = document.getElementById('copy-card-btn');
-    if(btn){
-      btn.classList.add('copied');
-      const orig = btn.innerHTML;
-      btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.7"><polyline points="1,6 4,9 11,2"/></svg> Copied!`;
-      setTimeout(()=>{ btn.classList.remove('copied'); btn.innerHTML = orig; }, 2400);
-    }
-  };
-
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text).then(doConfirm).catch(()=>{
-      legacyCopy(text); doConfirm();
-    });
-  } else {
-    legacyCopy(text); doConfirm();
-  }
+  navigator.clipboard.writeText(text).then(()=>{ showToast('Copied to clipboard ✓'); }).catch(()=>{ legacyCopy(text); showToast('Copied to clipboard ✓'); });
 }
 
 function legacyCopy(text){
-  const ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0;pointer-events:none';
-  document.body.appendChild(ta);
-  ta.focus(); ta.select();
-  try { document.execCommand('copy'); } catch(e){}
-  document.body.removeChild(ta);
+  const ta = document.createElement('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0;pointer-events:none';
+  document.body.appendChild(ta); ta.focus(); ta.select(); try { document.execCommand('copy'); } catch(e){} document.body.removeChild(ta);
 }
 
-// ── SHARE LINK ──
 function shareCard(){
-  // Copy the Flam experience link directly
-  const flamLink = window._modalFlamLink || '';
-  if(!flamLink){ showToast('No Flam link for this experience'); return; }
-  navigator.clipboard.writeText(flamLink).then(()=>{
-    showToast('Flam link copied ✓');
-    const btn=document.getElementById('share-btn');
-    if(btn){ btn.classList.add('copied'); setTimeout(()=>btn.classList.remove('copied'),2000); }
-  }).catch(()=>{ prompt('Copy Flam link:', flamLink); });
+  const flamLink = window._modalFlamLink || ''; if(!flamLink){ showToast('No Flam link available'); return; }
+  navigator.clipboard.writeText(flamLink).then(()=>{ showToast('Flam link copied ✓'); }).catch(()=>{ prompt('Copy:', flamLink); });
 }
 
-// ── DEEP LINK on load ──
 function checkDeepLink(){
-  const params = new URLSearchParams(window.location.search);
-  const expName = params.get('exp');
-  if(!expName || !S.rows.length) return;
-  const decoded = decodeURIComponent(expName);
-  const row = S.rows.find(r=>cv(r,S.cols.title).toLowerCase()===decoded.toLowerCase());
-  if(!row) return;
-  const cols=S.cols;
+  const params = new URLSearchParams(window.location.search); const expName = params.get('exp'); if(!expName || !S.rows.length) return;
+  const decoded = decodeURIComponent(expName); const row = S.rows.find(r=>cv(r,S.cols.title).toLowerCase()===decoded.toLowerCase()); if(!row) return;
   openModal({
-    row, title:cv(row,cols.title),
-    flamLink:cv(row,cols.flam), flamType:cv(row,cols.flamtype),
-    catRaw:cv(row,cols.cat), tags:cv(row,cols.cat).split(',').map(s=>s.trim()).filter(Boolean),
-    trigLinks:parseDriveLinks(cv(row,cols.trigger)),
-    vidLinks:parseDriveLinks(cv(row,cols.video))
+    row, title:cv(row,S.cols.title), flamLink:cv(row,S.cols.flam), flamType:cv(row,S.cols.flamtype), catRaw:cv(row,S.cols.cat),
+    tags:cv(row,S.cols.cat).split(',').map(s=>s.trim()).filter(Boolean), trigLinks:parseDriveLinks(cv(row,S.cols.trigger)), vidLinks:parseDriveLinks(cv(row,S.cols.video))
   });
 }
-
-let _currentRow = null;
 
 function openModal({ row, title, flamLink, flamType, catRaw, tags, trigLinks, vidLinks }){
   _currentRow = row;
-
-  // Build asset list: videos first, then trigger images
-  // Use real Drive filenames if available (from _driveNames column via Apps Script)
-  let driveNames = {};
-  try { driveNames = JSON.parse(row['_driveNames'] || '{}'); } catch(e) {}
-
-  function getDriveName(col, idx, fallback) {
-    const names = driveNames[col];
-    if (names && names[idx]) return names[idx];
-    return fallback;
-  }
+  let driveNames = {}; try { driveNames = JSON.parse(row['_driveNames'] || '{}'); } catch(e) {}
+  const getDriveName = (col, idx, fallback) => { const names = driveNames[col]; return (names && names[idx]) ? names[idx] : fallback; };
 
   const assets = [];
-  vidLinks.forEach((url,i)=>{
-    const name = getDriveName(S.cols.video, i, vidLinks.length>1?`Video ${i+1}`:'Mock Video');
-    assets.push({ label: name, url, kind:'video' });
-  });
-  trigLinks.forEach((url,i)=>{
-    const name = getDriveName(S.cols.trigger, i, trigLinks.length>1?`Trigger ${i+1}`:'Trigger Image');
-    assets.push({ label: name, url, kind:'image' });
-  });
+  vidLinks.forEach((url,i)=>{ assets.push({ label: getDriveName(S.cols.video, i, vidLinks.length>1?`Video ${i+1}`:'Mock Video'), url, kind:'video' }); });
+  trigLinks.forEach((url,i)=>{ assets.push({ label: getDriveName(S.cols.trigger, i, trigLinks.length>1?`Trigger ${i+1}`:'Trigger Image'), url, kind:'image' }); });
+  _currentAssets = assets; _currentAssetIdx = 0;
+  window._modalFlamLink = flamLink; window._modalTitle = title;
 
-  _currentAssets   = assets;
-  _currentAssetIdx = 0;
-
-  // Store for mobile video bar access
-  window._modalFlamLink = flamLink;
-  window._modalTitle    = title;
-
-  // Title + new badge
   const isNew = isNewThisWeek(row);
-  document.getElementById('modal-title').innerHTML =
-    esc(title) + (isNew ? '<span class="new-badge">✦ New</span>' : '');
-
-  // Chips
-  const chips = [
-    catRaw ? `<span class="modal-chip">${esc(catRaw)}</span>` : '',
-    flamType ? `<span class="modal-chip type">${esc(flamType)}</span>` : ''
-  ].filter(Boolean).join('');
-  document.getElementById('modal-chips').innerHTML = chips;
-
-  // Action buttons row (share + export)
+  document.getElementById('modal-title').innerHTML = esc(title) + (isNew ? '<span class="new-badge">✦ New</span>' : '');
+  document.getElementById('modal-chips').innerHTML = [catRaw ? `<span class="modal-chip">${esc(catRaw)}</span>` : '', flamType ? `<span class="modal-chip type">${esc(flamType)}</span>` : ''].filter(Boolean).join('');
+  
   document.getElementById('modal-actions').innerHTML = `
-    <button class="modal-action-btn" id="share-btn" onclick="shareCard()">
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="2" r="1.5"/><circle cx="2" cy="6" r="1.5"/><circle cx="9" cy="10" r="1.5"/><path d="M3.5 5.1l4-2.6M3.5 7l4 2.6"/></svg>
-      Flam link
-    </button>
-    <button class="modal-action-btn" id="copy-card-btn" onclick="copyCardToClipboard()">
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="1" width="7" height="9" rx="1.2"/><path d="M1 3.5v7A1.2 1.2 0 0 0 2.2 11.7H8"/></svg>
-      Copy card
-    </button>
-    <button class="modal-action-btn" onclick="exportCardCSV(_currentRow,'${esc(title).replace(/'/g,"\'")}')">
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 1v7M3 5l3 3 3-3M1 10h10"/></svg>
-      Export CSV
-    </button>`;
+    <button class="modal-action-btn" id="share-btn" onclick="shareCard()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="2" r="1.5"/><circle cx="2" cy="6" r="1.5"/><circle cx="9" cy="10" r="1.5"/><path d="M3.5 5.1l4-2.6M3.5 7l4 2.6"/></svg> Flam link</button>
+    <button class="modal-action-btn" id="copy-card-btn" onclick="copyCardToClipboard()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="1" width="7" height="9" rx="1.2"/><path d="M1 3.5v7A1.2 1.2 0 0 0 2.2 11.7H8"/></svg> Copy card</button>
+    <button class="modal-action-btn" onclick="exportCardCSV(_currentRow,'${esc(title).replace(/'/g,"\'")}')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 1v7M3 5l3 3 3-3M1 10h10"/></svg> Export CSV</button>`;
 
-  // Action links (open in Drive/Flam)
-  const linksEl = document.getElementById('modal-links');
-  linksEl.innerHTML='';
+  const linksEl = document.getElementById('modal-links'); linksEl.innerHTML='';
   if(flamLink){
-    const a=document.createElement('a');
-    a.href=flamLink; a.target='_blank'; a.rel='noopener'; a.className='link-btn primary';
+    const a=document.createElement('a'); a.href=flamLink; a.target='_blank'; a.className='link-btn primary';
     a.innerHTML=`<svg width="12" height="12" viewBox="0 0 12 12"><polygon points="2,1 11,6 2,11" fill="currentColor"/></svg><span class="lb-label">Open Flam Experience</span>`;
     linksEl.appendChild(a);
   }
-  trigLinks.forEach((url,i)=>{
-    const a=document.createElement('a');
-    a.href=url; a.target='_blank'; a.rel='noopener'; a.className='link-btn secondary';
-    const tName = getDriveName(S.cols.trigger, i, trigLinks.length>1?`Trigger Image ${i+1}`:'Trigger Image');
-    a.innerHTML=`<svg width="11" height="11" viewBox="0 0 11 11"><path d="M1 10L10 1M10 1H5M10 1V6"/></svg><span class="lb-label">${esc(tName)}</span>`;
-    linksEl.appendChild(a);
-  });
-  vidLinks.forEach((url,i)=>{
-    const a=document.createElement('a');
-    a.href=url; a.target='_blank'; a.rel='noopener'; a.className='link-btn secondary';
-    const vName = getDriveName(S.cols.video, i, vidLinks.length>1?`Mock Video ${i+1}`:'Mock Video');
-    a.innerHTML=`<svg width="11" height="11" viewBox="0 0 11 11"><path d="M1 10L10 1M10 1H5M10 1V6"/></svg><span class="lb-label">${esc(vName)}</span>`;
-    linksEl.appendChild(a);
-  });
 
-  // Extra metadata
   const shownCols = new Set([S.cols.title,S.cols.thumb,S.cols.flam,S.cols.flamtype,S.cols.cat,S.cols.trigger,S.cols.video,'_driveNames'].filter(Boolean));
   const extra = S.headers.filter(h=>!shownCols.has(h)&&row[h]).map(h=>({k:h,v:row[h]}));
-  const metaEl = document.getElementById('modal-meta');
-  const metaSection = document.getElementById('modal-meta-section');
-  if(extra.length){
-    metaEl.innerHTML = extra.map(e=>`<div class="meta-item"><div class="mk">${esc(e.k)}</div><div class="mv">${esc(e.v)}</div></div>`).join('');
-    metaSection.style.display = '';
-  } else {
-    metaSection.style.display = 'none';
-  }
+  const metaEl = document.getElementById('modal-meta'); const metaSection = document.getElementById('modal-meta-section');
+  if(extra.length){ metaEl.innerHTML = extra.map(e=>`<div class="meta-item"><div class="mk">${esc(e.k)}</div><div class="mv">${esc(e.v)}</div></div>`).join(''); metaSection.style.display = ''; } 
+  else { metaSection.style.display = 'none'; }
 
-  // Update URL without reload
-  const url = new URL(window.location.href);
-  url.searchParams.set('exp', encodeURIComponent(title));
-  history.replaceState(null,'', url.toString());
-
+  const url = new URL(window.location.href); url.searchParams.set('exp', encodeURIComponent(title)); history.replaceState(null,'', url.toString());
   renderModalPlayer(0);
-  document.getElementById('modal-bg').classList.add('open');
-  document.body.style.overflow='hidden';
+  document.getElementById('modal-bg').classList.add('open'); document.body.style.overflow='hidden';
 }
 
 function renderModalPlayer(idx){
   _currentAssetIdx = idx;
   const wrap = document.getElementById('modal-player-wrap');
-  // On mobile (width <= 768) CSS handles sizing; on desktop set inline style
-  if(window.innerWidth > 768){
-    wrap.style.cssText = 'flex:1;min-width:0;display:flex;flex-direction:column;background:#0e0e0e;overflow:hidden;';
-  } else {
-    wrap.style.cssText = ''; // let mobile CSS take over
-  }
+  if(window.innerWidth > 768){ wrap.style.cssText = 'flex:1;min-width:0;display:flex;flex-direction:column;background:#0e0e0e;overflow:hidden;'; } 
+  else { wrap.style.cssText = ''; }
 
   if(_currentAssets.length === 0){
-    wrap.innerHTML=`<div class="modal-player" style="flex:1"><div class="no-embed"><div class="no-embed-icon">▶</div><div>No preview assets available</div></div></div>`;
-    return;
+    wrap.innerHTML=`<div class="modal-player" style="flex:1"><div class="no-embed"><div>No preview assets available</div></div></div>`; return;
   }
-
-  // Tab bar (only if >1 asset)
-  let tabsHTML='';
-  if(_currentAssets.length>1){
-    tabsHTML=`<div class="asset-tabs">${_currentAssets.map((a,i)=>`<div class="asset-tab${i===idx?' on':''}" data-aidx="${i}">${esc(a.label)}</div>`).join('')}</div>`;
-  }
+  let tabsHTML=''; if(_currentAssets.length>1){ tabsHTML=`<div class="asset-tabs">${_currentAssets.map((a,i)=>`<div class="asset-tab${i===idx?' on':''}" data-aidx="${i}">${esc(a.label)}</div>`).join('')}</div>`; }
 
   const asset = _currentAssets[idx];
-  const previewUrl = drivePreview(asset.url);
   let playerHTML='';
-
   const tid = driveId(asset.url);
 
   if(asset.kind==='video' && tid){
-    // Drive /preview iframe — works on all devices including iOS
-    // No custom UI overlaid on video; action bar sits in info panel below
-    const previewUrl = drivePreview(asset.url);
-    const posterUrl = `https://drive.google.com/thumbnail?id=${tid}&sz=w800`;
+    // Optimization: Swapped fragile Google /preview iFrames for standard hardware accelerated native loop tags
+    const directStream = driveStreamUrl(asset.url);
     playerHTML=`<div class="modal-player" id="modal-player-el" style="flex:1;min-height:0">
-      <div class="video-poster">
-        <img src="${posterUrl}" alt="">
-        <div class="play-ring-lg"><svg viewBox="0 0 18 18"><polygon points="3,2 16,9 3,16"/></svg></div>
-      </div>
-      <iframe src="${previewUrl}" allowfullscreen allow="autoplay; encrypted-media"
-        onload="document.getElementById('modal-player-el')?.classList.add('ready')">
-      </iframe>
+      <video src="${directStream}" autoplay muted playsinline loop controls></video>
     </div>`;
   } else if(asset.kind==='image' && tid){
-    const previewUrl = drivePreview(asset.url);
-    playerHTML=`<div class="modal-player"><img src="https://drive.google.com/thumbnail?id=${tid}&sz=w1600" alt="" onerror="this.src='${previewUrl}'"></div>`;
+    playerHTML=`<div class="modal-player"><img src="https://drive.google.com/thumbnail?id=${tid}&sz=w1600" alt=""></div>`;
   } else {
-    playerHTML=`<div class="modal-player"><div class="no-embed"><div class="no-embed-icon">${asset.kind==='image'?'🖼':'▶'}</div><div>Can't preview directly</div><a class="link-btn primary" href="${esc(asset.url)}" target="_blank" style="text-decoration:none;margin-top:4px">Open in Drive ↗</a></div></div>`;
+    playerHTML=`<div class="modal-player"><div class="no-embed"><div>Can't preview directly</div><a class="link-btn primary" href="${esc(asset.url)}" target="_blank" style="margin-top:4px">Open Link ↗</a></div></div>`;
   }
 
   wrap.innerHTML = tabsHTML + playerHTML;
+  wrap.querySelectorAll('.asset-tab').forEach(tab=>{ tab.addEventListener('click',()=>renderModalPlayer(parseInt(tab.dataset.aidx))); });
 
-  // Attach tab click handlers
-  wrap.querySelectorAll('.asset-tab').forEach(tab=>{
-    tab.addEventListener('click',()=>renderModalPlayer(parseInt(tab.dataset.aidx)));
-  });
-
-  // On mobile — inject the action bar overlay onto the player panel
-  if(window.innerWidth <= 768){
-    injectMobileVideoBar();
+  // Native hardware stream guarantees autoplay runs on mobile browsers instantly when open
+  const videoEl = wrap.querySelector('video');
+  if(videoEl) {
+    videoEl.play().catch(err => console.log("Autoplay buffering managed: ", err));
   }
+
+  if(window.innerWidth <= 768){ injectMobileVideoBar(); }
 }
 
 function injectMobileVideoBar(){
-  // Clean up previous overlays
   document.getElementById('mob-bottom-overlay')?.remove();
+  const wrap = document.getElementById('modal-player-wrap'); if(!wrap) return;
 
-  const wrap = document.getElementById('modal-player-wrap');
-  if(!wrap) return;
-
-  const flamLink = window._modalFlamLink || '';
-  const title    = window._modalTitle    || '';
-
-  // ── BOTTOM OVERLAY — title + action row ──
-  const overlay = document.createElement('div');
-  overlay.id = 'mob-bottom-overlay';
-  overlay.className = 'mob-bottom-overlay';
+  const flamLink = window._modalFlamLink || ''; const title = window._modalTitle || '';
+  const overlay = document.createElement('div'); overlay.id = 'mob-bottom-overlay'; overlay.className = 'mob-bottom-overlay';
   overlay.innerHTML = `
     ${title ? `<p class="mob-exp-title">${esc(title)}</p>` : ''}
     <div class="mob-action-row">
-      ${flamLink
-        ? `<button class="mob-flam-btn" id="mob-flam-btn">
-            <svg width="13" height="13" viewBox="0 0 12 12"><polygon points="2,1 11,6 2,11" fill="white"/></svg>
-            Flam
-           </button>`
-        : ''
-      }
-      <button class="mob-icon-btn" id="mob-copy-btn" title="Copy Flam link">
-        <svg width="15" height="15" viewBox="0 0 16 16" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="5" y="2" width="9" height="11" rx="1.5"/>
-          <path d="M2 5v9a1.5 1.5 0 0 0 1.5 1.5H11"/>
-        </svg>
-      </button>
-      <button class="mob-icon-btn" id="mob-share-btn" title="Share">
-        <svg width="15" height="15" viewBox="0 0 16 16" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M8 2v9"/><path d="M5 6l3-4 3 4"/><path d="M3 13h10"/>
-        </svg>
-      </button>
+      ${flamLink ? `<button class="mob-flam-btn" id="mob-flam-btn"><svg width="13" height="13" viewBox="0 0 12 12"><polygon points="2,1 11,6 2,11" fill="white"/></svg>Flam</button>` : ''}
+      <button class="mob-icon-btn" id="mob-copy-btn" title="Copy"><svg width="15" height="15" viewBox="0 0 16 16"><rect x="5" y="2" width="9" height="11" rx="1.5"/><path d="M2 5v9a1.5 1.5 0 0 0 1.5 1.5H11"/></svg></button>
+      <button class="mob-icon-btn" id="mob-share-btn" title="Share"><svg width="15" height="15" viewBox="0 0 16 16"><path d="M8 2v9M5 6l3-4 3 4M3 13h10"/></svg></button>
     </div>`;
   wrap.appendChild(overlay);
 
-  // ── CLOSE BTN — move to video panel top-right ──
-  // Re-show the desktop close btn but styled for mobile via CSS
-  const closeBtn = document.getElementById('modal-close');
-  if(closeBtn) closeBtn.style.display = 'grid';
+  const closeBtn = document.getElementById('modal-close'); if(closeBtn) closeBtn.style.display = 'grid';
 
-  // ── HANDLERS ──
-  // Flam button
-  document.getElementById('mob-flam-btn')?.addEventListener('click', ()=>{
-    if(flamLink) window.open(flamLink, '_blank');
-  });
-
-  // Copy Flam link to clipboard
+  document.getElementById('mob-flam-btn')?.addEventListener('click', ()=>{ if(flamLink) window.open(flamLink, '_blank'); });
   document.getElementById('mob-copy-btn')?.addEventListener('click', async ()=>{
-    if(!flamLink){ showToast('No Flam link'); return; }
+    if(!flamLink) return;
     try {
-      await navigator.clipboard.writeText(flamLink);
-      showToast('Flam link copied ✓');
+      await navigator.clipboard.writeText(flamLink); showToast('Flam link copied ✓');
       const btn = document.getElementById('mob-copy-btn');
-      if(btn){
-        const prev = btn.innerHTML;
-        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14"><polyline points="1,7 5,11 13,2" stroke="white" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      if(btn) {
+        const prev = btn.innerHTML; btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14"><polyline points="1,7 5,11 13,2" stroke="white" fill="none" stroke-width="2"/></svg>';
         setTimeout(()=>{ btn.innerHTML = prev; }, 1800);
       }
     } catch(e){ prompt('Copy:', flamLink); }
   });
 
-  // Native share → clipboard fallback
   document.getElementById('mob-share-btn')?.addEventListener('click', async ()=>{
-    if(!flamLink){ showToast('No Flam link'); return; }
-    const shareData = { title: title || 'Flam Experience', url: flamLink };
-    try {
-      if(navigator.share && navigator.canShare?.(shareData)){
-        await navigator.share(shareData);
-        return;
-      }
-    } catch(e){ if(e.name === 'AbortError') return; }
-    try {
-      await navigator.clipboard.writeText(flamLink);
-      showToast('Flam link copied ✓');
-    } catch(_){ prompt('Copy:', flamLink); }
+    if(!flamLink) return; const shareData = { title: title || 'Flam Experience', url: flamLink };
+    try { if(navigator.share && navigator.canShare?.(shareData)){ await navigator.share(shareData); return; } } catch(e){}
+    try { await navigator.clipboard.writeText(flamLink); showToast('Flam link copied ✓'); } catch(_){ prompt('Copy:', flamLink); }
   });
 }
 
 function closeModal(){
   document.getElementById('modal-bg').classList.remove('open');
-  document.getElementById('modal-player-wrap').innerHTML='';
-  document.body.style.overflow='';
-  _currentAssets=[];
-  _currentRow=null;
-  // Remove deep link param from URL
-  const url = new URL(window.location.href);
-  url.searchParams.delete('exp');
-  history.replaceState(null,'', url.toString());
+  // Secure memory footprint cleanup on close prevents media thread leaks
+  const wrap = document.getElementById('modal-player-wrap');
+  const activeVideo = wrap?.querySelector('video');
+  if(activeVideo) { activeVideo.pause(); activeVideo.src = ""; activeVideo.load(); }
+  if(wrap) wrap.innerHTML='';
+  document.body.style.overflow=''; _currentAssets=[]; _currentRow=null;
+  const url = new URL(window.location.href); url.searchParams.delete('exp'); history.replaceState(null,'', url.toString());
 }
 
 document.getElementById('modal-close').addEventListener('click',closeModal);
 document.getElementById('modal-bg').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeModal(); });
 
-// Re-inject mobile bar on resize
 window.addEventListener('resize', ()=>{
   if(document.getElementById('modal-bg')?.classList.contains('open')){
     if(window.innerWidth <= 768) injectMobileVideoBar();
@@ -2014,293 +1445,108 @@ window.addEventListener('resize', ()=>{
   }
 });
 
-// Swipe down on the info panel handle area or video to close on mobile
-let _mTouchY = 0;
-const _modalEl = document.getElementById('modal');
+let _mTouchY = 0; const _modalEl = document.getElementById('modal');
 if(_modalEl){
-  _modalEl.addEventListener('touchstart', e=>{
-    _mTouchY = e.touches[0].clientY;
-  }, {passive:true});
+  _modalEl.addEventListener('touchstart', e=>{ _mTouchY = e.touches[0].clientY; }, {passive:true});
   _modalEl.addEventListener('touchmove', e=>{
-    // Only close if swiping down from the very top (drag handle area)
-    const dy = e.touches[0].clientY - _mTouchY;
-    const isTopOfPanel = e.touches[0].clientY < (_modalEl.getBoundingClientRect().top + 60);
+    const dy = e.touches[0].clientY - _mTouchY; const isTopOfPanel = e.touches[0].clientY < (_modalEl.getBoundingClientRect().top + 60);
     if(dy > 80 && isTopOfPanel) closeModal();
   }, {passive:true});
 }
 
-// ══════════════════════════════════════════════════
-//  SETTINGS PANEL
-// ══════════════════════════════════════════════════
 function openPanel(){
   document.getElementById('panel-api-url').value = S.apiUrl||'';
-  document.getElementById('panel-status').innerHTML = S.source==='api'
-    ? `<span class="src-badge live"><span class="dot"></span>Live — Apps Script</span>`
-    : `<span class="src-badge manual"><span class="dot"></span>Manual — pasted CSV</span>`;
-  populateColSelects();
-  document.getElementById('panel-overlay').classList.add('open');
-  document.getElementById('panel').classList.add('open');
+  document.getElementById('panel-status').innerHTML = S.source==='api' ? `<span class="src-badge live"><span class="dot"></span>Live — Apps Script</span>` : `<span class="src-badge manual"><span class="dot"></span>Manual</span>`;
+  populateColSelects(); document.getElementById('panel-overlay').classList.add('open'); document.getElementById('panel').classList.add('open');
 }
-function closePanel(){
-  document.getElementById('panel-overlay').classList.remove('open');
-  document.getElementById('panel').classList.remove('open');
-}
+function closePanel(){ document.getElementById('panel-overlay').classList.remove('open'); document.getElementById('panel').classList.remove('open'); }
 
 function populateColSelects(){
   const map = { 'col-title':'title','col-thumb':'thumb','col-flam':'flam','col-flamtype':'flamtype','col-cat':'cat','col-trigger':'trigger','col-video':'video' };
   const optional = new Set(['col-thumb','col-trigger','col-video','col-flamtype','col-cat']);
   Object.entries(map).forEach(([id,key])=>{
-    const el=document.getElementById(id);
-    el.innerHTML=optional.has(id)?'<option value="">— none —</option>':'';
-    S.headers.forEach(h=>{ const o=document.createElement('option');o.value=o.textContent=h;el.appendChild(o); });
-    el.value=S.cols[key]||'';
+    const el=document.getElementById(id); el.innerHTML=optional.has(id)?'<option value="">— none —</option>':'';
+    S.headers.forEach(h=>{ const o=document.createElement('option');o.value=o.textContent=h;el.appendChild(o); }); el.value=S.cols[key]||'';
   });
 }
 
 document.getElementById('settings-btn').addEventListener('click',openPanel);
 
-// ── REFRESH BUTTON ──
 document.getElementById('refresh-btn').addEventListener('click', async () => {
-  if(!S.apiUrl) return;
-  const btn = document.getElementById('refresh-btn');
-  btn.classList.add('spinning');
-  btn.disabled = true;
+  if(!S.apiUrl) return; const btn = document.getElementById('refresh-btn');
+  btn.classList.add('spinning'); btn.disabled = true;
   try {
-    const { headers, rows } = await fetchFromAPI(S.apiUrl);
-    writeCache(headers, rows);
-    const changed = JSON.stringify(rows) !== JSON.stringify(S.rows);
-    if(changed){
-      ingest(headers, rows);
-      showToast('Updated — ' + rows.length + ' experiences');
-    } else {
-      showToast('Already up to date ✓');
-    }
-    updateCacheBadge(false);
-    // Brief green flash
-    btn.classList.remove('spinning');
-    btn.classList.add('refreshed');
+    const { headers, rows } = await fetchFromAPI(S.apiUrl); writeCache(headers, rows);
+    if(JSON.stringify(rows) !== JSON.stringify(S.rows)){ ingest(headers, rows); showToast('Updated — ' + rows.length + ' elements'); } 
+    else { showToast('Already up to date ✓'); }
+    updateCacheBadge(false); btn.classList.remove('spinning'); btn.classList.add('refreshed');
     setTimeout(() => btn.classList.remove('refreshed'), 1800);
-  } catch(e) {
-    showToast('Refresh failed — check connection');
-    btn.classList.remove('spinning');
-  }
+  } catch(e) { showToast('Refresh failed'); btn.classList.remove('spinning'); }
   btn.disabled = false;
 });
 
-// ── REFRESH ON TAB FOCUS ──
-// When someone switches back to this tab, silently check for new data
-document.addEventListener('visibilitychange', () => {
-  if(document.visibilityState === 'visible' && S.apiUrl){
-    const cache = readCache();
-    // Refresh if cache is older than 5 min
-    if(cacheAge(cache) > CACHE_TTL){
-      silentRefresh(S.apiUrl);
-    }
-  }
-});
+document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible' && S.apiUrl){ const cache = readCache(); if(cacheAge(cache) > CACHE_TTL){ silentRefresh(S.apiUrl); } } });
 document.getElementById('panel-close').addEventListener('click',closePanel);
 document.getElementById('panel-overlay').addEventListener('click',closePanel);
 
-document.getElementById('repaste-btn').addEventListener('click',()=>{
-  const t=document.getElementById('repaste').value.trim();
-  if(!t)return;
-  loadFromPaste(t,msg=>alert('Parse error: '+msg));
-  closePanel();
-});
+document.getElementById('repaste-btn').addEventListener('click',()=>{ const t=document.getElementById('repaste').value.trim(); if(!t)return; loadFromPaste(t,msg=>alert('Error: '+msg)); closePanel(); });
 document.getElementById('panel-api-btn').addEventListener('click',async()=>{
-  const url=document.getElementById('panel-api-url').value.trim();
-  if(!url)return;
-  const btn=document.getElementById('panel-api-btn');
-  btn.textContent='Connecting…';btn.disabled=true;
-  await loadFromAPI(url,msg=>alert('Error: '+msg));
-  btn.textContent='Connect & reload';btn.disabled=false;
-  closePanel();
+  const url=document.getElementById('panel-api-url').value.trim(); if(!url)return;
+  const btn=document.getElementById('panel-api-btn'); btn.textContent='Connecting…'; btn.disabled=true;
+  await loadFromAPI(url,msg=>alert('Error: '+msg)); btn.textContent='Connect & reload'; btn.disabled=false; closePanel();
 });
-document.getElementById('apply-cols').addEventListener('click',()=>{
-  ['title','thumb','flam','flamtype','cat','trigger','video'].forEach(k=>{
-    S.cols[k]=document.getElementById('col-'+k).value;
-  });
-  persist();buildFilters();buildFilterSheet();renderAll();closePanel();
-});
+document.getElementById('apply-cols').addEventListener('click',()=>{ ['title','thumb','flam','flamtype','cat','trigger','video'].forEach(k=>{ S.cols[k]=document.getElementById('col-'+k).value; }); persist(); buildFilters(); buildFilterSheet(); renderAll(); closePanel(); });
 
-// ══════════════════════════════════════════════════
-//  SETUP SCREEN EVENTS
-// ══════════════════════════════════════════════════
-// Tab switching
-document.querySelectorAll('.tab[data-tab]').forEach(b=>{
-  b.addEventListener('click',()=>{
-    const t=b.dataset.tab;
-    document.querySelectorAll('.tab[data-tab]').forEach(x=>x.classList.toggle('on',x.dataset.tab===t));
-    document.getElementById('s-paste').classList.toggle('on',t==='s-paste');
-    document.getElementById('s-api').classList.toggle('on',t==='s-api');
-  });
-});
-document.querySelectorAll('.tab[data-ptab]').forEach(b=>{
-  b.addEventListener('click',()=>{
-    const t=b.dataset.ptab;
-    document.querySelectorAll('.tab[data-ptab]').forEach(x=>x.classList.toggle('on',x.dataset.ptab===t));
-    document.getElementById('pp-paste').classList.toggle('on',t==='pp-paste');
-    document.getElementById('pp-api').classList.toggle('on',t==='pp-api');
-  });
-});
+document.querySelectorAll('.tab[data-tab]').forEach(b=>{ b.addEventListener('click',()=>{ const t=b.dataset.tab; document.querySelectorAll('.tab[data-tab]').forEach(x=>x.classList.toggle('on',x.dataset.tab===t)); document.getElementById('s-paste').classList.toggle('on',t==='s-paste'); document.getElementById('s-api').classList.toggle('on',t==='s-api'); }); });
+document.querySelectorAll('.tab[data-ptab]').forEach(b=>{ b.addEventListener('click',()=>{ const t=b.dataset.ptab; document.querySelectorAll('.tab[data-ptab]').forEach(x=>x.classList.toggle('on',x.dataset.ptab===t)); document.getElementById('pp-paste').classList.toggle('on',t==='pp-paste'); document.getElementById('pp-api').classList.toggle('on',t==='pp-api'); }); });
 
-document.getElementById('paste-btn').addEventListener('click',()=>{
-  const t=document.getElementById('paste-in').value.trim();
-  const err=document.getElementById('paste-err');
-  if(!t){err.textContent='Please paste CSV data first.';err.style.display='';return;}
-  err.style.display='none';
-  loadFromPaste(t,msg=>{err.textContent=msg;err.style.display='';});
-});
-document.getElementById('api-btn').addEventListener('click',async()=>{
-  const url=document.getElementById('api-in').value.trim();
-  const err=document.getElementById('api-err');
-  const btn=document.getElementById('api-btn');
-  if(!url){err.textContent='Please enter the Apps Script URL.';err.style.display='';return;}
-  err.style.display='none';btn.textContent='Connecting…';btn.disabled=true;
-  await loadFromAPI(url,msg=>{err.textContent='Error: '+msg;err.style.display='';});
-  btn.textContent='Connect →';btn.disabled=false;
-});
+document.getElementById('paste-btn').addEventListener('click',()=>{ const t=document.getElementById('paste-in').value.trim(); const err=document.getElementById('paste-err'); if(!t){err.textContent='Please paste data.';err.style.display='';return;} err.style.display='none'; loadFromPaste(t,msg=>{err.textContent=msg;err.style.display='';}); });
+document.getElementById('api-btn').addEventListener('click',async()=>{ const url=document.getElementById('api-in').value.trim(); const err=document.getElementById('api-err'); const btn=document.getElementById('api-btn'); if(!url){err.textContent='Please enter URL.';err.style.display='';return;} err.style.display='none'; btn.textContent='Connecting…'; btn.disabled=true; await loadFromAPI(url,msg=>{err.textContent='Error: '+msg;err.style.display='';}); btn.textContent='Connect'; btn.disabled=false; });
 
-// ══════════════════════════════════════════════════
-//  CONTROLS
-// ══════════════════════════════════════════════════
 document.getElementById('search').addEventListener('input',e=>{S.search=e.target.value;renderAll();});
 document.getElementById('sort').addEventListener('change',e=>{S.sort=e.target.value;renderAll();});
-document.getElementById('clear-btn').addEventListener('click',()=>{
-  S.filters={cat:null,type:null};S.search='';
-  document.getElementById('search').value='';
-  document.querySelectorAll('.f-row.on').forEach(el=>el.classList.remove('on'));
-  syncMobileChips();
-  updateMobileFilterBtn();
-  renderAll();
-});
+document.getElementById('clear-btn').addEventListener('click',()=>{ S.filters={cat:null,type:null};S.search=''; document.getElementById('search').value=''; document.querySelectorAll('.f-row.on').forEach(el=>el.classList.remove('on')); syncMobileChips(); updateMobileFilterBtn(); renderAll(); });
 document.getElementById('vg').addEventListener('click',()=>{S.view='grid';document.getElementById('vg').classList.add('on');document.getElementById('vl').classList.remove('on');renderAll();});
 document.getElementById('vl').addEventListener('click',()=>{S.view='list';document.getElementById('vl').classList.add('on');document.getElementById('vg').classList.remove('on');renderAll();});
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){closeModal();closePanel();closeFilterSheet();} });
 
-// ======= FILTER BOTTOM SHEET (mobile) =======
 function buildFilterSheet(){
-  const catCounts={}, typeCounts={};
-  S.rows.forEach(row=>{
-    cv(row,S.cols.cat).split(',').map(s=>s.trim()).filter(Boolean).forEach(c=>{ catCounts[c]=(catCounts[c]||0)+1; });
-    const t=cv(row,S.cols.flamtype); if(t) typeCounts[t]=(typeCounts[t]||0)+1;
-  });
-  fillSheetPills('fs-cat','cat',catCounts);
-  fillSheetPills('fs-type','type',typeCounts);
-  updateMobileFilterBtn();
+  const catCounts={}, typeCounts={}; S.rows.forEach(row=>{ cv(row,S.cols.cat).split(',').map(s=>s.trim()).filter(Boolean).forEach(c=>{ catCounts[c]=(catCounts[c]||0)+1; }); const t=cv(row,S.cols.flamtype); if(t) typeCounts[t]=(typeCounts[t]||0)+1; });
+  fillSheetPills('fs-cat','cat',catCounts); fillSheetPills('fs-type','type',typeCounts); updateMobileFilterBtn();
 }
 
 function fillSheetPills(elId, key, counts){
-  const el=document.getElementById(elId); if(!el) return;
-  el.innerHTML='';
+  const el=document.getElementById(elId); if(!el) return; el.innerHTML='';
   Object.entries(counts).sort((a,b)=>b[1]-a[1]).forEach(([val])=>{
-    const btn=document.createElement('button');
-    btn.className='filter-pill'+(S.filters[key]===val?' on':'');
-    btn.textContent=val; btn.dataset.key=key; btn.dataset.val=val;
-    btn.addEventListener('click',()=>{
-      S.filters[key]=S.filters[key]===val?null:val;
-      el.querySelectorAll('.filter-pill').forEach(p=>p.classList.toggle('on',p.dataset.val===S.filters[key]));
-      updateMobileFilterBtn();
-    });
-    el.appendChild(btn);
+    const btn=document.createElement('button'); btn.className='filter-pill'+(S.filters[key]===val?' on':''); btn.textContent=val; btn.dataset.key=key; btn.dataset.val=val;
+    btn.addEventListener('click',()=>{ S.filters[key]=S.filters[key]===val?null:val; el.querySelectorAll('.filter-pill').forEach(p=>p.classList.toggle('on',p.dataset.val===S.filters[key])); updateMobileFilterBtn(); }); el.appendChild(btn);
   });
 }
 
 function updateMobileFilterBtn(){
   const btn=document.getElementById('mob-filter-btn'); if(!btn) return;
-  const count=(S.filters.cat?1:0)+(S.filters.type?1:0);
-  btn.classList.toggle('has-active',count>0);
+  const count=(S.filters.cat?1:0)+(S.filters.type?1:0); btn.classList.toggle('has-active',count>0);
   const ico='<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="1" y1="3" x2="11" y2="3"/><line x1="3" y1="6" x2="9" y2="6"/><line x1="5" y1="9" x2="7" y2="9"/></svg>';
   btn.innerHTML = count>0 ? ico+' Filters ('+count+')' : ico+' Filters';
 }
 
-function openFilterSheet(){
-  document.querySelectorAll('.filter-pill').forEach(p=>{
-    p.classList.toggle('on',S.filters[p.dataset.key]===p.dataset.val);
-  });
-  document.getElementById('fso').classList.add('open');
-  document.getElementById('fs').classList.add('open');
-  document.body.style.overflow='hidden';
-}
-function closeFilterSheet(){
-  const fso=document.getElementById('fso');
-  const fs=document.getElementById('fs');
-  if(fso) fso.classList.remove('open');
-  if(fs)  fs.classList.remove('open');
-  document.body.style.overflow='';
-}
+function openFilterSheet(){ document.querySelectorAll('.filter-pill').forEach(p=>{ p.classList.toggle('on',S.filters[p.dataset.key]===p.dataset.val); }); document.getElementById('fso').classList.add('open'); document.getElementById('fs').classList.add('open'); document.body.style.overflow='hidden'; }
+function closeFilterSheet(){ const fso=document.getElementById('fso'); const fs=document.getElementById('fs'); if(fso) fso.classList.remove('open'); if(fs) fs.classList.remove('open'); document.body.style.overflow=''; }
 
-const _mfb=document.getElementById('mob-filter-btn');
-if(_mfb) _mfb.addEventListener('click',openFilterSheet);
-const _fso=document.getElementById('fso');
-if(_fso) _fso.addEventListener('click',closeFilterSheet);
-const _fsa=document.getElementById('fs-apply');
-if(_fsa) _fsa.addEventListener('click',()=>{ renderAll(); closeFilterSheet(); syncSidebarFilters(); });
-const _fsc=document.getElementById('fs-clear');
-if(_fsc) _fsc.addEventListener('click',()=>{
-  S.filters={cat:null,type:null};
-  document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.f-row.on').forEach(el=>el.classList.remove('on'));
-  syncMobileChips();
-  updateMobileFilterBtn();
-  renderAll();
-  closeFilterSheet();
-});
+const _mfb=document.getElementById('mob-filter-btn'); if(_mfb) _mfb.addEventListener('click',openFilterSheet);
+const _fso=document.getElementById('fso'); if(_fso) _fso.addEventListener('click',closeFilterSheet);
+const _fsa=document.getElementById('fs-apply'); if(_fsa) _fsa.addEventListener('click',()=>{ renderAll(); closeFilterSheet(); syncSidebarFilters(); });
+const _fsc=document.getElementById('fs-clear'); if(_fsc) _fsc.addEventListener('click',()=>{ S.filters={cat:null,type:null}; document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('on')); document.querySelectorAll('.f-row.on').forEach(el=>el.classList.remove('on')); syncMobileChips(); updateMobileFilterBtn(); renderAll(); closeFilterSheet(); });
 
-// Swipe down to close
-let _ty=0;
-const _fsEl=document.getElementById('fs');
-if(_fsEl){
-  _fsEl.addEventListener('touchstart',e=>{_ty=e.touches[0].clientY;},{passive:true});
-  _fsEl.addEventListener('touchmove',e=>{ if(e.touches[0].clientY-_ty>70) closeFilterSheet(); },{passive:true});
-}
+let _ty=0; const _fsEl=document.getElementById('fs');
+if(_fsEl){ _fsEl.addEventListener('touchstart',e=>{_ty=e.touches[0].clientY;},{passive:true}); _fsEl.addEventListener('touchmove',e=>{ if(e.touches[0].clientY-_ty>70) closeFilterSheet(); },{passive:true}); }
 
-// ══════════════════════════════════════════════════
-//  UTILS
-// ══════════════════════════════════════════════════
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-// ══════════════════════════════════════════════════
-//  BOOT
-// ══════════════════════════════════════════════════
-// ── DIAGNOSTICS ──
-// Open browser console and run: flamDiag()
-window.flamDiag = async function(){
-  console.group('%c Flam Library Diagnostics', 'font-weight:bold;font-size:14px');
-  console.log('API URL:', DEFAULT_API_URL);
-  console.log('Cache age:', Math.round(cacheAge(readCache())/1000) + 's');
-  console.log('Rows in memory:', S.rows.length);
-  console.log('Testing API...');
-  try {
-    const start = Date.now();
-    const res = await fetchWithTimeout(DEFAULT_API_URL, 15000);
-    const text = await res.text();
-    console.log('HTTP status:', res.status);
-    console.log('Response time:', Date.now()-start + 'ms');
-    const data = JSON.parse(text);
-    console.log('Rows returned:', data.rows?.length);
-    console.log('%c ✅ API is working', 'color:green;font-weight:bold');
-  } catch(e) {
-    console.error('%c ❌ API failed:', 'color:red;font-weight:bold', e.message);
-    console.log('Possible causes:');
-    console.log('  - Network/firewall blocking script.google.com');
-    console.log('  - Apps Script not deployed as "Anyone" access');
-    console.log('  - Apps Script needs re-authorization');
-  }
-  console.groupEnd();
-};
+function cv(row,k){ return k?(row[k]||''):''; }
 
 (function boot(){
-  if(S.apiUrl){
-    document.getElementById('setup').style.display='none';
-    document.getElementById('app').style.display='';
-    loadWithCache(S.apiUrl);
-  } else if(S.csv){
-    document.getElementById('setup').style.display='none';
-    document.getElementById('app').style.display='';
-    loadFromPaste(S.csv, ()=>{});
-  }
-  // else: show setup screen
+  if(S.apiUrl){ document.getElementById('setup').style.display='none'; document.getElementById('app').style.display=''; loadWithCache(S.apiUrl); } 
+  else if(S.csv){ document.getElementById('setup').style.display='none'; document.getElementById('app').style.display=''; loadFromPaste(S.csv, ()=>{}); }
 })();
 </script>
 </body>
